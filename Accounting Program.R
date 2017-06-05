@@ -8,6 +8,7 @@
 
 # Bring in libraries ------------------------------------------------------
 
+library(plyr)
 library(dplyr)
 library(readODS)
 library(sqldf)
@@ -119,19 +120,39 @@ df$true_distance <- df$TOTAL_DURATION_OF_FLIGHT - df$Block
 sum_of_errors_true <- sum(df$true_distance)
 
 
+# Clean up and write back out ---------------------------------------------
+
 ## Write out to a new file
 
 test$TOTAL_DURATION_OF_FLIGHT <- test$Block
 test$`AIRPLANE_MULTI-ENGINE_LAND` <- test$Block
 test$SECOND_IN_COMMAND <- test$Block
-test$DATE <- test$DATE_new
+test$DATE <- test$Date_new
 
-write <- test[order(test$DATE), ]
-write <- test[, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)]
-write <- write[order(write$DATE), ]
+logbook2 <- read_ods('/home/katie/Downloads/Mike Schedule/Crew Log (Responses).ods')
 
-list <- names(write)
-list <- sub("_", " ", list)
-colnames(write) <- list
+list <- names(logbook2)
+list <- sub("\\s+", "_", list)
+colnames(logbook2) <- list
+
+logbook2 <- subset(logbook2, logbook2$AIRCRAFT_MAKE_AND_MODEL != 'EMB-145' | grepl("Sim", logbook2$AIRCRAFT_IDENT))
+
+logbook2$Date_new <- as.Date(logbook2$DATE, "%m/%d/%Y")
+logbook2$DATE <- logbook2$Date_new
+logbook2$TOTAL_DURATION_OF_FLIGHT <- format(round(logbook2$TOTAL_DURATION_OF_FLIGHT, 2), nsmall = 2)
+logbook2$`AIRPLANE_MULTI-ENGINE_LAND` <- format(round(logbook2$`AIRPLANE_MULTI-ENGINE_LAND`, 2), nsmall = 2)
+logbook2$SECOND_IN_COMMAND <- format(round(logbook2$SECOND_IN_COMMAND, 2), nsmall = 2)
+
+test <- rbind.fill(test, logbook2)
+
+test <- test[order(test$Date_new, test$Timestamp), ]
+
+write <- test[, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34)]
+
+colnames(write) <- c('Timestamp', 'DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT', 'FROM', 'TO', 'TOTAL DURATION OF FLIGHT',
+                     'AIRPLANE MULTI-ENGINE LAND', 'LANDINGS DAY', 'LANDINGS NIGHT', 'NIGHT', 'ACTUAL INSTRUMENT', 'APPROACH',
+                     'CROSS COUNTRY', 'FLIGHT SIMULATOR', 'PILOT IN COMMAND', 'SECOND IN COMMAND', 'REMARKS AND ENDORSEMENTS',
+                     'Origin', 'Dest', 'Flight', 'Date', 'A/C Type', 'Tail', 'Depart', 'Arrive', 'Block', 'Credit', 'Captain',
+                     'First Officer', 'Flight Attendant') 
 
 write.csv(write, '/home/katie/Downloads/Mike Schedule/XJT_Logbook_CLEAN.csv', na=" ")
