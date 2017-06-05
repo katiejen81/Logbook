@@ -43,7 +43,7 @@ logbook <- subset(logbook, logbook$AIRCRAFT_MAKE_AND_MODEL == 'EMB-145' & !grepl
 schedule$Date_new <- as.Date(schedule$Date, "%m/%d/%Y")
 logbook$DATE_new <- as.Date(logbook$DATE, "%m/%d/%Y")
 
-schedule <- subset(schedule, schedule$Date_new < Sys.Date())
+schedule <- subset(schedule, schedule$Date_new < as.Date('2017-05-31', format='%Y-%m-%d'))
 
 ## Getting weird errors in SQLDF - let's rename some columns
 logbook$Origin <- stri_sub(logbook$FROM, -3, -1)
