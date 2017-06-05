@@ -84,9 +84,12 @@ difference <- subset(total_count, Count.x != Count.y)
 
 # Compare the total time to block time ------------------------------------
 
-comparison <- sqldf('SELECT DISTINCT a.*, b.Block
+schedule$Depart <- as.character(schedule$Depart)
+schedule$Arrive <- as.character(schedule$Arrive)
+
+comparison <- sqldf('SELECT DISTINCT a.*, b.*
                     FROM logbook a
-                    LEFT JOIN schedule as b
+                    LEFT JOIN schedule b
                     ON (a.DATE_new = b.Date_new
                     AND upper(a.Origin) = upper(b.Origin)
                     AND upper(a.Dest) = upper(b.Dest)
