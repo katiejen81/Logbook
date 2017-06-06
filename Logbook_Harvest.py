@@ -154,6 +154,24 @@ for i in dates:
             elif (j['Origin'], j['Dest']) in seq_list:
                 counter = counter + 1
                 j['Sequence'] = counter
+                 
+#Sequence trips - Logbook
+dates = list()
+for i in value_dict:
+    if i['DATE'] in dates:
+        continue
+    dates.append(i['DATE'])
+
+for i in dates:
+    seq_list = list()
+    for j in value_dict:
+        if (j['FROM'], j['TO']) not in seq_list:
+            seq_list.append((j['FROM'], j['TO']))
+            j['Sequence'] = 1
+            counter = 1 
+        elif (j['FROM'], j['TO']) in seq_list:
+            counter = counter + 1
+            j['Sequence'] = counter            
     
 #Join the Information in the logbook to the schedule
 
@@ -163,10 +181,15 @@ for i in value_dict:
     for j in schedule_dict:
         if j['Origin'] == i['FROM'] \
             and j['Dest'] == i['TO'] \
-            and j['Date'] == i['DATE']:
+            and j['Date'] == i['DATE'] \
+            and j['Sequence'] == i['Sequence']:
                 data = j
                 data['AIRCRAFT MAKE AND MODEL'] = i['AIRCRAFT MAKE AND MODEL']
+                data['AIRCRAFT IDENT'] = i['AIRCRAFT IDENT']
                 data['LANDINGS DAY'] = i['LANDINGS DAY']
+                data['DATE'] = i['DATE']
+                data['FROM'] = i['FROM']
+                data['TO'] = i['TO']
                 data['LANDINGS NIGHT'] = i['LANDINGS NIGHT']
                 data['NIGHT'] = i['NIGHT']
                 data['ACTUAL INSTRUMENT'] = i['ACTUAL INSTRUMENT']
@@ -180,4 +203,8 @@ for i in value_dict:
                 data['PILOT IN COMMAND'] = 0
                 data['SECOND IN COMMAND'] = j['Block']    
                 Total_sheet.append(data)
+                
+#Append to the master
+for i in Total_sheet:
+    value_dict_master.append(i)
 
