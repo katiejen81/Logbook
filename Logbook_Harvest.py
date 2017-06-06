@@ -48,7 +48,7 @@ if flags:
 credentials = store.get()
 print('Storing credentials to ' + credential_path)
 
-#Pull in data
+#Pull in data from the current spreadsheet
 http = credentials.authorize(httplib2.Http())
 
 discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
@@ -74,6 +74,35 @@ for i in range(1, len(values)):
         data[l] = m
     value_dict.append(data)
     
+#Now let's pull in the master file
+spreadsheetId = '15FeoThcHzYceUEoIR6uegF4HFH-jJKzW6paitZ9dipM'
+rangeName = 'XJT_Logbook_CLEAN!A:AE'
+result = service.spreadsheets().values().get(
+    spreadsheetId=spreadsheetId, range=rangeName).execute()
+values_master = result.get('values', [])
+
+headers_master = values_master[0]
+
+value_dict_master = list()
+
+for i in range(1, len(values_master)):
+    j = values_master[i]
+    data = dict()
+    for l, m in zip(headers_master, j):
+        data[l] = m
+    value_dict_master.append(data)
+    
+#Find the entries that are not in the master file
+existing = list()
+for i in value_dict_master:
+    existing.append(i.get('Timestamp', ''))
+    
+to_add = list()
+for i in value_dict:
+    if i['Timestamp'] in existing:
+        continue
+    to_add.append(i)
+    
 #Pull in a list of file so that we can find the schedule
 drive = discovery.build('drive', 'v3', http=http)
 
@@ -81,28 +110,50 @@ files = drive.files().list().execute()
 
 files = files.get('files', [])
 
+schedules = list()
 for i in files:
-    if i['name'] != '7048196_201705':
+    if '7048196' not in i['name']:
         continue
-    fileid = i['id']
+    fileid = (i['id'], i['name'])
+    schedules.append(fileid)
 
-#Pull in the schedule    
-rangeName2 = '7048196_201705!A:N'
-result2 = service.spreadsheets().values().get(
-        spreadsheetId=fileid, range=rangeName2).execute()
-schedule = result2.get('values', [])
+#Pull in the schedule
+for i in schedules:
+    rangeName2 =  i[1] + '!A:N'
+    result2 = service.spreadsheets().values().get(
+        spreadsheetId=i[0], range=rangeName2).execute()
+    if schedules.index(i) == 0:
+        schedule = (result2.get('values', []))
+    else:
+        schedule.append((result2.get('values', [])))
 
-
-headers_sched = schedule[0]
-
-schedule_dict = list()
-
+schedule_headers = schedule[0]
+schedule_dict = list()        
 for i in range(1, len(schedule)):
     j = schedule[i]
     data = dict()
-    for l, m in zip(headers_sched, j):
+    for l, m in zip(schedule_headers, j):
         data[l] = m
     schedule_dict.append(data)
+
+#Sequence trips - Schedule
+dates = list()
+for i in schedule_dict:
+    if i['Date'] in dates:
+        continue
+    dates.append(i['Date'])
+   
+for i in dates:
+    seq_list = list()
+    for j in schedule_dict:
+        if j['Date'] == i:
+            if (j['Origin'], j['Dest']) not in seq_list:
+                seq_list.append((j['Origin'], j['Dest']))
+                j['Sequence'] = 1
+                counter = 1 
+            elif (j['Origin'], j['Dest']) in seq_list:
+                counter = counter + 1
+                j['Sequence'] = counter
     
 #Join the Information in the logbook to the schedule
 
