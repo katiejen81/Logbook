@@ -27,7 +27,7 @@ except ImportError:
     flags = None
     
 #Setting objects for credentials
-SCOPES = ('https://www.googleapis.com/auth/spreadsheets.readonly',
+SCOPES = ('https://www.googleapis.com/auth/spreadsheets',
           'https://www.googleapis.com/auth/drive.metadata.readonly')
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Logbook API Harvest'
@@ -207,4 +207,19 @@ for i in value_dict:
 #Append to the master
 for i in Total_sheet:
     value_dict_master.append(i)
+    
+#Look for values that were not appended
+Timestamps = list()
+for i in value_dict_master:
+    Timestamps.append(i['Timestamp'])
+    
+Missing = list()
+for i in value_dict:
+    if i['Timestamp'] not in Timestamps:
+        Missing.append(i)
+        
+#Things left to do
+#Figure out how to append the new data to the old
+#Figure out how to create a new sheet with the missing data
+
 
