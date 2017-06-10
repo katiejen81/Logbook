@@ -34,9 +34,11 @@ APPLICATION_NAME = 'Logbook API Harvest'
 
 #Setting the working directory
 os.chdir('/home/katie/Documents/Logbook')
+#working directory on desktop computer
+os.chdir('/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook')
 
 #Getting credentials
-store = Storage('/home/katie/Documents/Logbook/authorization.json')
+store = Storage('authorization.json')
 credential_path = os.path.join(os.getcwd(),
                                    'sheets.googleapis.com-Logbook.json')
 
