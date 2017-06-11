@@ -233,4 +233,10 @@ for i in value_dict:
 #Figure out how to append the new data to the old
 #Figure out how to create a new sheet with the missing data
 
-
+#Now we need to return the delta to a list of lists so that we can append
+delta = list()
+for i in Total_sheet:
+    row = list()
+    for j in headers_master:
+        row.append(i[j])
+    delta.append(row)
