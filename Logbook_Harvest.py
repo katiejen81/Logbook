@@ -230,8 +230,7 @@ for i in value_dict:
         Missing.append(i)
         
 #Things left to do
-#Figure out how to append the new data to the old
-#Figure out how to create a new sheet with the missing data
+#Replace the test sheet with the master sheet now that everything works
 
 #Now we need to return the delta to a list of lists so that we can append
 delta = list()
