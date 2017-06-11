@@ -140,7 +140,8 @@ for i in schedules:
     if schedules.index(i) == 0:
         schedule = (result2.get('values', []))
     else:
-        schedule.append((result2.get('values', [])))
+        for j in result2.get('values', []):
+            schedule.append(j)
 
 schedule_headers = schedule[0]
 schedule_dict = list()        
@@ -169,6 +170,10 @@ for i in dates:
             elif (j['Origin'], j['Dest']) in seq_list:
                 counter = counter + 1
                 j['Sequence'] = counter
+
+#Testing the sequencer                
+#for i in schedule_dict:
+#    print(i['Date'] + '\t' + i['Origin'] + '\t' + i['Dest'] + '\t' + str(i['Sequence']))
                  
 #Sequence trips - Logbook
 dates = list()
@@ -233,9 +238,6 @@ for i in value_dict:
     if i['Timestamp'] not in Timestamps:
         Missing.append(i)
         
-#Things left to do
-#Replace the test sheet with the master sheet now that everything works
-
 #Now we need to return the delta to a list of lists so that we can append
 delta = list()
 for i in Total_sheet:
@@ -245,13 +247,12 @@ for i in Total_sheet:
     delta.append(row)
     
 #Append to the test spreadsheet
-testSpreadsheetId = '1sxFOENtpQmIpdJtPj54MydqKy4rGwh9CWKERKvKl2tU'
 body = {
         'values': delta
         }
 
 resultTest = service.spreadsheets().values().append(
-        spreadsheetId = testSpreadsheetId, range=rangeName,
+        spreadsheetId = spreadsheetId, range=rangeName,
         valueInputOption='USER_ENTERED', body=body).execute()
 
 #Return the missing list to a list of lists
@@ -270,5 +271,5 @@ body = {
         }
 
 resultMissing = service.spreadsheets().values().update(
-        spreadsheetId = testSpreadsheetId, range=rangeMiss,
+        spreadsheetId = spreadsheetId, range=rangeMiss,
         valueInputOption='USER_ENTERED', body=body).execute()
