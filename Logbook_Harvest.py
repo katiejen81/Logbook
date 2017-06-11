@@ -110,10 +110,19 @@ drive = discovery.build('drive', 'v3', http=http)
 
 files = drive.files().list().execute()
 
-files = files.get('files', [])
-
+#Pull in all files, need to loop through several pages
+files_list = list()
+while True:
+    if files.get('nextPageToken', None) == None:
+        break
+    for i in files['files']:
+        files_list.append(i)
+    nextPage = dict()
+    nextPage['pageToken'] = files['nextPageToken']
+    files = drive.files().list(**nextPage).execute()
+    
 schedules = list()
-for i in files:
+for i in files_list:
     if '7048196' not in i['name']:
         continue
     fileid = (i['id'], i['name'])
