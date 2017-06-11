@@ -240,3 +240,14 @@ for i in Total_sheet:
     for j in headers_master:
         row.append(i[j])
     delta.append(row)
+    
+#Append to the test spreadsheet
+testSpreadsheetId = '1sxFOENtpQmIpdJtPj54MydqKy4rGwh9CWKERKvKl2tU'
+body = {
+        'values': delta
+        }
+
+resultTest = service.spreadsheets().values().append(
+        spreadsheetId = testSpreadsheetId, range=rangeName,
+        valueInputOption='USER_ENTERED', body=body).execute()
+
