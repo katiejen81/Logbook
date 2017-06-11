@@ -13,12 +13,14 @@ from __future__ import division
 import httplib2
 import os
 
-from apiclient import discovery
+try:
+    from apiclient import discovery
+except:
+    from googleapiclient import discovery
+
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
-
-import numpy as np
 
 try:
     import argparse
@@ -33,9 +35,11 @@ CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Logbook API Harvest'
 
 #Setting the working directory
-os.chdir('/home/katie/Documents/Logbook')
+try:
+    os.chdir('/home/katie/Documents/Logbook')
 #working directory on desktop computer
-os.chdir('/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook')
+except:
+    os.chdir('/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook')
 
 #Getting credentials
 store = Storage('authorization.json')
