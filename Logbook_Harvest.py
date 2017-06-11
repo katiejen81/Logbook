@@ -251,3 +251,21 @@ resultTest = service.spreadsheets().values().append(
         spreadsheetId = testSpreadsheetId, range=rangeName,
         valueInputOption='USER_ENTERED', body=body).execute()
 
+#Return the missing list to a list of lists
+Missing_sheet = list()
+
+Missing_sheet.append(headers)
+for i in Missing:
+    row = list()
+    for j in headers:
+        row.append(i.get(j, ''))
+    Missing_sheet.append(row)
+
+rangeMiss = 'Missing'
+body = {
+        'values': Missing_sheet
+        }
+
+resultMissing = service.spreadsheets().values().update(
+        spreadsheetId = testSpreadsheetId, range=rangeMiss,
+        valueInputOption='USER_ENTERED', body=body).execute()
