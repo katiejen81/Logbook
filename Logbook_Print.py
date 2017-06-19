@@ -4,7 +4,20 @@
 Create the Logbook Pages
 Created on Sun Jun 11 14:27:07 2017
 Written in Python2
-@author: katie
+Copyright (C) 2017  Kathryn Tanner
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 #Import our packages
@@ -47,7 +60,7 @@ credential_path = os.path.join(os.getcwd(),
                                    'sheets.googleapis.com-Logbook.json')
 store = Storage('sheets.googleapis.com-Logbook.json')
 credentials = store.get()
-        
+
 #Authorize credentials
 http = credentials.authorize(httplib2.Http())
 
