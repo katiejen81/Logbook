@@ -22,12 +22,6 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
-
 #Setting objects for credentials
 scope = ('https://www.googleapis.com/auth/spreadsheets',
           'https://www.googleapis.com/auth/drive.metadata.readonly')
