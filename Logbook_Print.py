@@ -8,7 +8,7 @@ Written in Python2
 """
 
 #Import our packages
-from __future__ import print_function
+
 from __future__ import division
 import httplib2
 import os
@@ -27,9 +27,9 @@ try:
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
 except ImportError:
     flags = None
-    
+
 import numpy as np
-    
+
 #Setting objects for credentials
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
@@ -47,13 +47,6 @@ credential_path = os.path.join(os.getcwd(),
                                    'sheets.googleapis.com-Logbook.json')
 store = Storage('sheets.googleapis.com-Logbook.json')
 credentials = store.get()
-
-if not credentials or credentials.invalid:
-    flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-    flow.user_agent = APPLICATION_NAME
-    if flags:
-        credentials = tools.run_flow(flow, store, flags)
-        print('Storing credentials to ' + credential_path)
         
 #Authorize credentials
 http = credentials.authorize(httplib2.Http())
@@ -85,7 +78,7 @@ for i in range(1, len(values_master)):
     value_dict_master.append(data)
 
 #Defining the functions that print the table
-    
+
 ##Defining the header row and the fixed widths of the columns
 def header_row(values):
     writer.write('<table>')
@@ -106,12 +99,12 @@ def header_row(values):
     writer.write('<col width="44">')
     writer.write('<col width="44">')
     writer.write('<col width="115">')
-    writer.write('<tr>')   
+    writer.write('<tr>')
     for i in values:
         j = '<th>' + i + '</th>'
         writer.write(j)
     writer.write('</tr>')
-    
+
 ##Function that dynamically defines the pages
 def page_chunk(input_dict):
     length_list = [63, 68, 55, 32, 20, 50, 80, 56, 56, 38, 62, 50, 44, 56, 44, 44, 115]
@@ -140,7 +133,7 @@ def page_chunk(input_dict):
         else:
             continue
     value_list.append(temp_list)
-    
+
     index_list = list()
     for i in value_list:
         val = (min(i), max(i))
