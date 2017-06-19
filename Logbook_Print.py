@@ -217,17 +217,9 @@ prev_totals = dict()
 ##Writing the html file
 with open('Logbook_Print.html', 'wb') as writer:
     writer.write('<html>')
-    writer.write('<style> table {border: 1px solid black;' + \
-                                 'border-collapse: collapse;' + \
-                                 'font-family: "Ubuntu Mono", sans-serif;' + \
-                                 'font-size: 12px;' + \
-                                 'text-align: left;' + \
-                                 'page-break-after: always;' + \
-                                 'table-layout: fixed;}' + \
-        'th, tr, td {' + \
-        'border: 1px solid black;' + \
-        'border-collapse: collapse;}' + \
-        '</style>')
+    writer.write('<head>')
+    writer.write('<link rel="stylesheet" href="style.css">')
+    writer.write('</head>')
     writer.write('<title>Mike Tanner Logbook</title>')
     writer.write('<body>')
     for i in index_list:
