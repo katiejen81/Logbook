@@ -1,0 +1,15 @@
+table {
+  border: 1px solid black;
+  border-collapse: collapse;
+  font-family: "Ubuntu Mono", sans-serif;
+  font-size: 12px;
+  text-align: left;
+  page-break-after: always;
+  table-layout: fixed;
+}
+
+th, tr, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  
+}
