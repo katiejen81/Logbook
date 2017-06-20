@@ -57,8 +57,8 @@ except:
 
 #Getting credentials
 credential_path = os.path.join(os.getcwd(),
-                                   'sheets.googleapis.com-Logbook.json')
-store = Storage('sheets.googleapis.com-Logbook.json')
+                                   'authorization.json')
+store = Storage('authorization.json')
 credentials = store.get()
 
 #Authorize credentials
@@ -92,31 +92,59 @@ for i in range(1, len(values_master)):
 
 #Defining the functions that print the table
 
-##Defining the header row and the fixed widths of the columns
-def header_row(values):
+##Defining the header row and the fixed widths of the columns - page even
+def p1header_row(values, year):
     writer.write('<table>')
-    writer.write('<col width="63">')
-    writer.write('<col width="68">')
-    writer.write('<col width="55">')
-    writer.write('<col width="32">')
-    writer.write('<col width="20">')
-    writer.write('<col width="50">')
+    writer.write('<col width="70">')
     writer.write('<col width="80">')
-    writer.write('<col width="56">')
-    writer.write('<col width="56">')
-    writer.write('<col width="38">')
-    writer.write('<col width="62">')
+    writer.write('<col width="80">')
     writer.write('<col width="50">')
-    writer.write('<col width="44">')
-    writer.write('<col width="56">')
-    writer.write('<col width="44">')
-    writer.write('<col width="44">')
-    writer.write('<col width="115">')
+    writer.write('<col width="50">')
+    writer.write('<col width="85">')
+    writer.write('<col width="95">')
+    writer.write('<col width="85">')
+    writer.write('<col width="95">')
+    writer.write('<col width="85">')
+    writer.write('<col width="85">')
+    writer.write('<col width="40">')
+    writer.write('<col width="40">')
     writer.write('<tr>')
+    writer.write('<th colspan = "3">YEAR ' \
+                 + year \
+                 + '</th>')
+    writer.write('<th colspan = "2">ROUTE OF FLIGHT</th>')
+    writer.write('<th rowspan = "2">TOTAL DURATION OF FLIGHT</th>')
+    writer.write('<th colspan = "5">AIRCRAFT CATEGORY AND CLASS</th>')
+    writer.write('<th colspan = "2">LANDINGS</th>')
+    writer.write('</tr><tr>')
     for i in values:
-        j = '<th>' + i + '</th>'
+        if i == 'TOTAL DURATION OF FLIGHT':
+            continue
+        j = '<td class=secondrow>' + i + '</td>'
         writer.write(j)
     writer.write('</tr>')
+    
+##Defining the header row and fixed widths of the columns - page odd
+def p2header_row(values):
+    writer.write('<table>')
+    writer.write('<col width="70">')
+    writer.write('<col width="70">')
+    writer.write('<col width="70">')
+    writer.write('<col width="80">')
+    writer.write('<col width="75">')
+    writer.write('<col width="75">')
+    writer.write('<col width="75">')
+    writer.write('<col width="75">')
+    writer.write('<col width="75">')
+    writer.write('<col width="75">')
+    writer.write('<col width="385">')
+    writer.write('<tr>')
+    writer.write('<th colspan = "3">CONDITIONS OF FLIGHT</th>')
+    writer.write('<th rowspan = "2">FLIGHT SIMULATOR</th>')
+    writer.write('<th colspan = "6">TYPE OF PILOTING TIME</th>')
+    writer.write('<th rowspan = "2">REMARKS AND ENDORSEMENTS</th>')
+    writer.write('</tr><tr>')
+
 
 ##Function that dynamically defines the pages
 def page_chunk(input_dict):
