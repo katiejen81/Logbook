@@ -144,6 +144,12 @@ def p2header_row(values):
     writer.write('<th colspan = "6">TYPE OF PILOTING TIME</th>')
     writer.write('<th rowspan = "2">REMARKS AND ENDORSEMENTS</th>')
     writer.write('</tr><tr>')
+    for i in values:
+        if i == 'FLIGHT SIMULATOR':
+            continue
+        j = '<td class=secondrow>' + i + '</td>'
+        writer.write(j)
+    writer.write('</tr>')
 
 
 ##Function that dynamically defines the pages
