@@ -152,9 +152,9 @@ def p2header_row(values):
     writer.write('</tr>')
 
 
-##Function that dynamically defines the pages
-def page_chunk(input_dict):
-    length_list = [63, 68, 55, 32, 20, 50, 80, 56, 56, 38, 62, 50, 44, 56, 44, 44, 115]
+##Function that dynamically defines the pages - page 1
+def p2page_chunk(input_dict):
+    length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 385]
     record_rows = 0
     temp_list = list()
     value_list = list()
