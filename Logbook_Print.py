@@ -98,14 +98,14 @@ def p1header_row(values, year):
     writer.write('<col width="70">')
     writer.write('<col width="80">')
     writer.write('<col width="80">')
-    writer.write('<col width="50">')
-    writer.write('<col width="50">')
+    writer.write('<col width="60">')
+    writer.write('<col width="60">')
     writer.write('<col width="85">')
     writer.write('<col width="95">')
     writer.write('<col width="85">')
     writer.write('<col width="95">')
     writer.write('<col width="85">')
-    writer.write('<col width="85">')
+    writer.write('<col width="65">')
     writer.write('<col width="40">')
     writer.write('<col width="40">')
     writer.write('<tr>')
@@ -152,7 +152,7 @@ def p2header_row(values):
     writer.write('</tr>')
 
 
-##Function that dynamically defines the pages - page 1
+##Function that dynamically defines the pages - page 2
 def p2page_chunk(input_dict):
     length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 385]
     record_rows = 0
@@ -164,7 +164,7 @@ def p2page_chunk(input_dict):
         col_rows = list()
         for j, k in zip(values_list, length_list):
             length = len(i.get(j, ''))
-            length_px = length * 6
+            length_px = length * 7.5
             if np.ceil(length_px/k) == 0:
                 rows = 1
             else:
