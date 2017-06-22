@@ -153,6 +153,18 @@ def p2header_row(values):
         writer.write(j)
     writer.write('</tr>')
 
+##Function that develops the page1 and page2 dictionaries
+def page_divide(header_list, input_dict):
+    output_dict = list()
+    for i in input_dict:
+        dict1 = dict()
+        for key, value in i.iteritems():
+            if key in header_list:
+                dict1[key] = value
+            else:
+                continue
+        output_dict.append(dict1)
+    return output_dict
 
 ##Function that dynamically defines the pages - page 2
 def p2page_chunk(input_dict):
@@ -245,6 +257,21 @@ def page_write(input_range, input_data, input_headers, prev_totals):
     writer.write('<td colspan = "8" rowspan = "2">Signed: </td>')
     writer.write('</table>')
     return combined_totals
+
+#Preparing the data for write to the html table
+##Dividing the dictionaries to pages
+page1_list = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT', 
+              'FROM', 'TO', 'TOTAL DURATION OF FLIGHT', 'AIRPLANE SINGLE-ENGINE LAND',
+              'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND', 
+              'ROTORCRAFT HELICOPTER', 'GLIDER', 'LANDINGS DAY', 'LANDINGS NIGHT']
+
+page2_list = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIGHT SIMULATOR',
+              'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND', 
+              'DUAL RECEIVED', 'AS FLIGHT INSTRUCTOR', 'REMARKS AND ENDORSEMENTS']
+
+
+page1_dict = page_divide(page1_list, value_dict_master)
+page2_dict = page_divide(page2_list, value_dict_master)
 
 #Using the functions to write out to an html table
 ##Starting dictionary
