@@ -173,6 +173,8 @@ def page_chunk(input_dict):
     length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 200]
     record_rows = 0
     temp_list = list()
+    temp_height_list = list()
+    height_list = list()
     value_list = list()
     row_num = 0
     for i in input_dict:
@@ -188,20 +190,25 @@ def page_chunk(input_dict):
                 rows = int(np.ceil(length_px/k))
             col_rows.append(rows)
         record_rows = record_rows + max(col_rows)
+        temp_height_list.append(max(col_rows) * 17)
         row_num = row_num + 1
         if record_rows > 38:
             start = temp_list[len(temp_list) - 1]
+            start_height = temp_height_list[len(temp_height_list) - 1]
+            del temp_height_list[len(temp_height_list) - 1]
             del temp_list[len(temp_list) - 1]
             value_list.append(temp_list)
+            height_list.append(temp_height_list)
             temp_list = [start]
+            temp_height_list = [start_height]
             record_rows = max(col_rows)
         else:
             continue
     value_list.append(temp_list)
-    
+    height_list.append(temp_height_list)
     index_list = list()
-    for i in value_list:
-        val = (min(i), max(i))
+    for i, j in zip(value_list, height_list):
+        val = (min(i), max(i), j)
         index_list.append(val)
     return index_list
 
