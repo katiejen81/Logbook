@@ -169,16 +169,17 @@ def page_divide(header_list, input_dict):
     return output_dict
 
 ##Function that dynamically defines the pages - page 2
-def p2page_chunk(input_dict):
-    length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 385]
+def page_chunk(input_dict):
+    length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 200]
     record_rows = 0
     temp_list = list()
     value_list = list()
+    row_num = 0
     for i in input_dict:
-        index = input_dict.index(i)
+        index = row_num
         temp_list.append(index)
         col_rows = list()
-        for j, k in zip(values_list, length_list):
+        for j, k in zip(page2_list, length_list):
             length = len(i.get(j, ''))
             length_px = length * 7.5
             if np.ceil(length_px/k) == 0:
@@ -187,7 +188,8 @@ def p2page_chunk(input_dict):
                 rows = int(np.ceil(length_px/k))
             col_rows.append(rows)
         record_rows = record_rows + max(col_rows)
-        if record_rows > 39:
+        row_num = row_num + 1
+        if record_rows > 38:
             start = temp_list[len(temp_list) - 1]
             del temp_list[len(temp_list) - 1]
             value_list.append(temp_list)
@@ -196,14 +198,12 @@ def p2page_chunk(input_dict):
         else:
             continue
     value_list.append(temp_list)
-
+    
     index_list = list()
     for i in value_list:
         val = (min(i), max(i))
         index_list.append(val)
     return index_list
-
-index_list = page_chunk(value_dict_master)
 
 ##Function to write out the table rows and cells past the header row
 def page_write(input_range, input_data, input_headers, prev_totals):
@@ -275,6 +275,10 @@ page2_list = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIG
 page1_dict = page_divide(page1_list, value_dict_master)
 page2_dict = page_divide(page2_list, value_dict_master)
 
+##Chunking the pages and defining the records for breaks
+index_list = page_chunk(page2_dict)
+
+
 #Using the functions to write out to an html table
 ##Starting dictionary
 prev_totals = dict()
@@ -288,7 +292,7 @@ with open('Logbook_Print.html', 'wb') as writer:
     writer.write('<title>Mike Tanner Logbook</title>')
     writer.write('<body>')
     for i in index_list:
-        header_row(values_list)
+        p1header_row(page1_list, 'TEST')
         prev = page_write(i, value_dict_master, values_list, prev_totals)
         prev_totals = prev
     writer.write('</body>')
