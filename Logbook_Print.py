@@ -139,7 +139,7 @@ def p2header_row(values):
     writer.write('<col width="75">')
     writer.write('<col width="75">')
     writer.write('<col width="75">')
-    writer.write('<col width="385">')
+    writer.write('<col width="200">')
     writer.write('<tr>')
     writer.write('<th colspan = "3">CONDITIONS OF FLIGHT</th>')
     writer.write('<th rowspan = "2">FLIGHT SIMULATOR</th>')
@@ -148,6 +148,8 @@ def p2header_row(values):
     writer.write('</tr><tr>')
     for i in values:
         if i == 'FLIGHT SIMULATOR':
+            continue
+        elif i == 'REMARKS AND ENDORSEMENTS':
             continue
         j = '<td class=secondrow>' + i + '</td>'
         writer.write(j)
