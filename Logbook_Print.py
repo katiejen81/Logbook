@@ -121,7 +121,7 @@ def p1header_row(values, year):
         if i == 'TOTAL DURATION OF FLIGHT':
             continue
         elif 'LANDINGS' in i:
-            i = i.split()[1]
+            i = i.split(' ')[1]
         j = '<td class=secondrow>' + i + '</td>'
         writer.write(j)
     writer.write('</tr>')
