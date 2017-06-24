@@ -194,13 +194,12 @@ def page_chunk(input_dict):
         row_num = row_num + 1
         if record_rows > 38:
             start = temp_list[len(temp_list) - 1]
-            start_height = temp_height_list[len(temp_height_list) - 1]
             del temp_height_list[len(temp_height_list) - 1]
             del temp_list[len(temp_list) - 1]
             value_list.append(temp_list)
             height_list.append(temp_height_list)
             temp_list = [start]
-            temp_height_list = [start_height]
+            temp_height_list = list()
             record_rows = max(col_rows)
         else:
             continue
