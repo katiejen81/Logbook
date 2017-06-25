@@ -220,7 +220,10 @@ for i in value_dict:
                 data['ACTUAL INSTRUMENT'] = i['ACTUAL INSTRUMENT']
                 data['APPROACH'] = i['APPROACH']
                 data['FLIGHT SIMULATOR'] = i['FLIGHT SIMULATOR']
-                data['CROSS COUNTRY'] = i['CROSS COUNTRY']
+                if ['CROSS COUNTRY'] == 0:
+                    data['CROSS COUNTRY'] = 0
+                else:
+                    data['CROSS COUNTRY'] = j['Block']
                 data['REMARKS AND ENDORSEMENTS'] = i.get('REMARKS AND ENDORSEMENTS', '')
                 data['Timestamp'] = i['Timestamp']
                 data['TOTAL DURATION OF FLIGHT'] = j['Block']
