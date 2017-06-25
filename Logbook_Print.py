@@ -192,7 +192,7 @@ def page_chunk(input_dict):
         record_rows = record_rows + max(col_rows)
         temp_height_list.append(max(col_rows) * 17)
         row_num = row_num + 1
-        if record_rows > 38:
+        if record_rows > 33:
             start = temp_list[len(temp_list) - 1]
             del temp_height_list[len(temp_height_list) - 1]
             del temp_list[len(temp_list) - 1]
@@ -291,7 +291,7 @@ with open('Logbook_Print.html', 'wb') as writer:
     writer.write('<body>')
     for i in index_list:
         p1header_row(page1_list, 'TEST')
-        prev = page_write(i, value_dict_master, values_list, prev_totals)
+        prev = page1_write(i, page1_dict, page1_list, prev_totals)
         prev_totals = prev
     writer.write('</body>')
     writer.write('</html>')
