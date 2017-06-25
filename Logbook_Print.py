@@ -195,12 +195,13 @@ def page_chunk(input_dict):
         if record_rows > 33:
             start = temp_list[len(temp_list) - 1]
             del temp_height_list[len(temp_height_list) - 1]
+            del temp_height_list[len(temp_height_list) - 1]
             del temp_list[len(temp_list) - 1]
             value_list.append(temp_list)
             height_list.append(temp_height_list)
             temp_list = [start]
-            temp_height_list = list()
             record_rows = max(col_rows)
+            temp_height_list = [record_rows * 17]
         else:
             continue
     value_list.append(temp_list)
