@@ -21,3 +21,12 @@ th {
 td.secondrow {
   text-align: center
 }
+
+.pagebreak {
+  page-break-before: always;
+}
+
+h1, p {
+  text-align: center;
+  font-family: "Ubuntu Mono", sans-serif;
+}
