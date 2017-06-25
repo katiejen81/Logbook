@@ -211,7 +211,7 @@ def page_chunk(input_dict):
         index_list.append(val)
     return index_list
 
-##Function to write out the table rows and cells past the header row
+##Function to write out the table rows and cells past the header row - Page 1
 def page1_write(input_range, input_data, input_headers, prev_totals):
     start = input_range[0]
     end = input_range[1]
@@ -258,6 +258,48 @@ def page1_write(input_range, input_data, input_headers, prev_totals):
     writer.write('</table>')
     return combined_totals
 
+def page2_write(input_range, input_data, input_headers, prev_totals):
+    start = input_range[0]
+    end = input_range[1]
+    row_height_list = input_range[2]
+    print_list = input_data[start:end]
+    curr_totals = dict()
+    combined_totals = dict()
+    for i, j in zip(print_list, row_height_list):
+        writer.write('<tr>')
+        for k in input_headers:
+            l = '<td style="height:' + str(j) + 'px;">' + i.get(k, ' ') + '</td>'
+            writer.write(l.encode('utf-8'))
+            if k not in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
+                         'FROM', 'TO', 'APPROACH', 'REMARKS AND ENDORSEMENTS']:
+                try:
+                    total = float(i.get(k, 0))
+                except:
+                    total = 0
+                else:
+                    curr_totals[k] = round(curr_totals.get(k, 0) + total, 1)
+                    combined_totals[k] = round(prev_totals.get(k, 0) + curr_totals.get(k, 0), 1)
+            else:
+                curr_totals[k] = ''
+                combined_totals[k] = ''
+                continue
+        writer.write('</tr>')
+    for m, n in zip([curr_totals, prev_totals, combined_totals],
+                    ['TOTALS THIS PAGE', 'AMT. FORWARDED', 'TOTALS TO DATE']):
+        writer.write('<tr>')
+        for l in page2_list:
+            if l == 'REMARKS AND ENDORSEMENTS' and n == 'TOTALS THIS PAGE':
+                writer.write('<th rowspan="4" align="center" style="font-size: 12px;">I certify that the entries in this ' + \
+                             'log are true<br><br>____________________________________' + \
+                             '<br>PILOT SIGNATURE</th>')
+            elif l == 'REMARKS AND ENDORSEMENTS' and n != 'TOTALS THIS PAGE':
+                continue
+            else:
+                writer.write('<td>' + str(m.get(l, 0)) + '</td>')
+        writer.write('</tr>')
+    writer.write('</table>')
+    return combined_totals
+                
 #Preparing the data for write to the html table
 ##Dividing the dictionaries to pages
 page1_list = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT', 
@@ -279,8 +321,8 @@ index_list = page_chunk(page2_dict)
 
 #Using the functions to write out to an html table
 ##Starting dictionary
-prev_totals = dict()
-
+prev1_totals = dict()
+prev2_totals = dict()
 ##Writing the html file
 with open('Logbook_Print.html', 'wb') as writer:
     writer.write('<html>')
@@ -291,8 +333,11 @@ with open('Logbook_Print.html', 'wb') as writer:
     writer.write('<body>')
     for i in index_list:
         p1header_row(page1_list, 'TEST')
-        prev = page1_write(i, page1_dict, page1_list, prev_totals)
-        prev_totals = prev
+        prev = page1_write(i, page1_dict, page1_list, prev1_totals)
+        prev1_totals = prev
+        p2header_row(page2_list)
+        prev = page2_write(i, page2_dict, page2_list, prev2_totals)
+        prev2_totals = prev
     writer.write('</body>')
     writer.write('</html>')
 writer.close()
