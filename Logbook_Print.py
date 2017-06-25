@@ -31,7 +31,7 @@ try:
 except:
     from googleapiclient import discovery
 
-from oauth2client import client
+from oauth2client.client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
@@ -60,6 +60,13 @@ credential_path = os.path.join(os.getcwd(),
                                    'authorization.json')
 store = Storage('authorization.json')
 credentials = store.get()
+
+if not credentials or credentials.invalid:
+    flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+    flow.user_agent = APPLICATION_NAME
+    if flags:
+        credentials = tools.run_flow(flow, store, flags)
+        print('Storing credentials to ' + credential_path)
 
 #Authorize credentials
 http = credentials.authorize(httplib2.Http())
