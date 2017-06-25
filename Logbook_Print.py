@@ -212,57 +212,49 @@ def page_chunk(input_dict):
     return index_list
 
 ##Function to write out the table rows and cells past the header row
-def page_write(input_range, input_data, input_headers, prev_totals):
+def page1_write(input_range, input_data, input_headers, prev_totals):
     start = input_range[0]
     end = input_range[1]
+    row_height_list = input_range[2]
     print_list = input_data[start:end]
     curr_totals = dict()
     combined_totals = dict()
-    for i in print_list:
+    for i, j in zip(print_list, row_height_list):
         writer.write('<tr>')
-        for j in input_headers:
-            k = '<td>' + i.get(j, ' ') + '</td>'
-            writer.write(k.encode('utf-8'))
-            if j not in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
+        for k in input_headers:
+            l = '<td style="height:' + str(j) + 'px;">' + i.get(k, ' ') + '</td>'
+            writer.write(l.encode('utf-8'))
+            if k not in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
                          'FROM', 'TO', 'APPROACH', 'REMARKS AND ENDORSEMENTS']:
                 try:
-                    total = float(i.get(j, 0))
+                    total = float(i.get(k, 0))
                 except:
                     total = 0
-                if j in ['LANDINGS DAY', 'LANDINGS NIGHT']:
-                    curr_totals[j] = int(curr_totals.get(j, 0) + total)
-                    combined_totals[j] = int(prev_totals.get(j, 0) + curr_totals.get(j, 0))
+                if k in ['LANDINGS DAY', 'LANDINGS NIGHT']:
+                    curr_totals[k] = int(curr_totals.get(k, 0) + total)
+                    combined_totals[k] = int(prev_totals.get(k, 0) + curr_totals.get(k, 0))
                 else:
-                    curr_totals[j] = round(curr_totals.get(j, 0) + total, 1)
-                    combined_totals[j] = round(prev_totals.get(j, 0) + curr_totals.get(j, 0), 1)
+                    curr_totals[k] = round(curr_totals.get(k, 0) + total, 1)
+                    combined_totals[k] = round(prev_totals.get(k, 0) + curr_totals.get(k, 0), 1)
             else:
-                curr_totals[j] = ''
-                combined_totals[j] = ''
+                curr_totals[k] = ''
+                combined_totals[k] = ''
                 continue
         writer.write('</tr>')
-    for m, n in zip([prev_totals, curr_totals, combined_totals],
-                    ['Previous', 'Current', 'Combined']):
-        if n == 'Previous':
+    for m, n in zip([curr_totals, prev_totals, combined_totals],
+                    ['TOTALS THIS PAGE', 'AMT. FORWARDED', 'TOTALS TO DATE']):
+        if n == 'TOTALS THIS PAGE':
             writer.write('<tr>')
             writer.write('<th colspan="2" rowspan = "4">Totals</th>')
         writer.write('<tr>')
-        writer.write('<th colspan="3">' + n + ' Page Totals</th>')
-        writer.write('<td>' + str(m.get('TOTAL DURATION OF FLIGHT', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('AIRPLANE MULTI-ENGINE LAND', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('LANDINGS DAY', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('LANDINGS NIGHT', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('NIGHT', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('ACTUAL INSTRUMENT', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('APPROACH', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('CROSS COUNTRY', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('FLIGHT SIMULATOR', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('PILOT IN COMMAND', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('SECOND IN COMMAND', 0)) + '</td>')
-        writer.write('<td>' + str(m.get('REMARKS AND ENDORSEMENTS', 0)) + '</td>')
+        writer.write('<th colspan="3">' + n + ' </th>')
+        for k in input_headers:
+            if k in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT', 'FROM',
+                     'TO']:
+                continue
+            else:
+                writer.write('<td>' + str(m.get(k, 0)) + '</td>')
         writer.write('</tr>')
-    writer.write('<td colspan = "6" rowspan = "2">I certify that the entries and totals are true as of </td>')
-    writer.write('<td colspan = "3" rowspan = "2">Date: </td>')
-    writer.write('<td colspan = "8" rowspan = "2">Signed: </td>')
     writer.write('</table>')
     return combined_totals
 
