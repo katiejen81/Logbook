@@ -170,7 +170,7 @@ def page_divide(header_list, input_dict):
 
 ##Function that dynamically defines the pages - page 2
 def page_chunk(input_dict):
-    length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 200]
+    length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 170]
     record_rows = 0
     temp_list = list()
     temp_height_list = list()
@@ -290,7 +290,7 @@ def page2_write(input_range, input_data, input_headers, prev_totals):
         writer.write('<tr>')
         for l in page2_list:
             if l == 'REMARKS AND ENDORSEMENTS' and n == 'TOTALS THIS PAGE':
-                writer.write('<th rowspan="4" align="center" style="font-size: 12px;">I certify that the entries in this ' + \
+                writer.write('<th rowspan="4" align="center" style="font-size: 9px;">I certify that the entries in this ' + \
                              'log are true<br><br>____________________________________' + \
                              '<br>PILOT SIGNATURE</th>')
             elif l == 'REMARKS AND ENDORSEMENTS' and n != 'TOTALS THIS PAGE':
@@ -332,6 +332,10 @@ with open('Logbook_Print.html', 'wb') as writer:
     writer.write('</head>')
     writer.write('<title>Mike Tanner Logbook</title>')
     writer.write('<body>')
+    writer.write('<h1>Placeholder for Cover Page</h1>')
+    writer.write('<p>Michael Tanner</p>')
+    writer.write('<p>Logbook from insert_date to insert_date</p>')
+    writer.write('<div class="pagebreak"> </div>')
     for i in index_list:
         p1header_row(page1_list, 'TEST')
         prev = page1_write(i, page1_dict, page1_list, prev1_totals)
