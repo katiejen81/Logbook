@@ -31,7 +31,7 @@ try:
 except:
     from googleapiclient import discovery
 
-from oauth2client.client import client
+from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
@@ -101,7 +101,7 @@ for i in range(1, len(values_master)):
 
 ##Defining the header row and the fixed widths of the columns - page even
 def p1header_row(values, year):
-    writer.write('<table>')
+    writer.write('<table class=page1>')
     writer.write('<col width="70">')
     writer.write('<col width="80">')
     writer.write('<col width="80">')
@@ -132,10 +132,10 @@ def p1header_row(values, year):
         j = '<td class=secondrow>' + i + '</td>'
         writer.write(j)
     writer.write('</tr>')
-    
+
 ##Defining the header row and fixed widths of the columns - page odd
 def p2header_row(values):
-    writer.write('<table>')
+    writer.write('<table class=page2>')
     writer.write('<col width="70">')
     writer.write('<col width="70">')
     writer.write('<col width="70">')
@@ -177,7 +177,7 @@ def page_divide(header_list, input_dict):
 
 ##Function that dynamically defines the pages - page 2
 def page_chunk(input_dict):
-    length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 170]
+    length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 206]
     record_rows = 0
     temp_list = list()
     temp_height_list = list()
@@ -190,7 +190,7 @@ def page_chunk(input_dict):
         col_rows = list()
         for j, k in zip(page2_list, length_list):
             length = len(i.get(j, ''))
-            length_px = length * 7.5
+            length_px = length * 7
             if np.ceil(length_px/k) == 0:
                 rows = 1
             else:
@@ -199,7 +199,7 @@ def page_chunk(input_dict):
         record_rows = record_rows + max(col_rows)
         temp_height_list.append(max(col_rows) * 17)
         row_num = row_num + 1
-        if record_rows > 33:
+        if record_rows > 37:
             start = temp_list[len(temp_list) - 1]
             del temp_height_list[len(temp_height_list) - 1]
             del temp_height_list[len(temp_height_list) - 1]
@@ -307,16 +307,16 @@ def page2_write(input_range, input_data, input_headers, prev_totals):
         writer.write('</tr>')
     writer.write('</table>')
     return combined_totals
-                
+
 #Preparing the data for write to the html table
 ##Dividing the dictionaries to pages
-page1_list = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT', 
+page1_list = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
               'FROM', 'TO', 'TOTAL DURATION OF FLIGHT', 'AIRPLANE SINGLE-ENGINE LAND',
-              'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND', 
+              'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND',
               'ROTORCRAFT HELICOPTER', 'GLIDER', 'LANDINGS DAY', 'LANDINGS NIGHT']
 
 page2_list = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIGHT SIMULATOR',
-              'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND', 
+              'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND',
               'DUAL RECEIVED', 'AS FLIGHT INSTRUCTOR', 'REMARKS AND ENDORSEMENTS']
 
 
