@@ -1,11 +1,23 @@
-table {
+table.page1 {
   border: 1px solid black;
   border-collapse: collapse;
   font-family: "Ubuntu Mono", sans-serif;
-  font-size: 15px;
+  font-size: 10pt;
   text-align: left;
   page-break-after: always;
   table-layout: fixed;
+  margin:.5in 1in .5in .5in;
+}
+
+table.page2 {
+  border: 1px solid black;
+  border-collapse: collapse;
+  font-family: "Ubuntu Mono", sans-serif;
+  font-size: 10pt;
+  text-align: left;
+  page-break-after: always;
+  table-layout: fixed;
+  margin:.5in .5in .5in 1in;
 }
 
 th, tr, td {
@@ -23,10 +35,11 @@ td.secondrow {
 }
 
 .pagebreak {
-  page-break-before: always;
+  page-break-after: always;
 }
 
 h1, p {
   text-align: center;
   font-family: "Ubuntu Mono", sans-serif;
+  margin-bottom: .5in;
 }
