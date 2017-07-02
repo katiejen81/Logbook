@@ -213,6 +213,25 @@ def page_chunk(input_dict):
             continue
     value_list.append(temp_list)
     height_list.append(temp_height_list)
+    last = height_list[len(height_list) - 1]
+    del height_list[len(height_list) - 1]
+    for m in height_list:
+        if sum(m) == 612:
+            continue
+        elif sum(m) < 612:
+            for n in range(len(m)):
+                m[n] = m[n] + 1
+                if sum(m) == 612:
+                    break
+    for m in height_list:
+        if sum(m) == 612:
+            continue
+        elif sum(m) < 612:
+            for n in range(len(m)):
+                m[n] = m[n] + 1
+                if sum(m) == 612:
+                    break
+    height_list.append(last)
     index_list = list()
     for i, j in zip(value_list, height_list):
         val = (min(i), max(i), j)
