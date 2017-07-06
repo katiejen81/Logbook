@@ -177,7 +177,7 @@ def page_divide(header_list, input_dict):
 
 ##Function that dynamically defines the pages - page 2
 def page_chunk(input_dict):
-    length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 200]
+    length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 190]
     record_rows = 0
     temp_list = list()
     temp_height_list = list()
