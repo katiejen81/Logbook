@@ -1,39 +1,26 @@
-table.page1 {
-  border: 1px solid black;
+table {
+  border: 2px solid black;
   border-collapse: collapse;
   font-family: "Ubuntu Mono", sans-serif;
   font-size: 10pt;
   text-align: left;
   page-break-after: always;
   table-layout: fixed;
+}
+
+table.page1 {
   margin:.5in 1in .5in .5in;
 }
 
 table tr:nth-last-child(3) {
   border-top: 2px solid black;
-  border-right: 2px solid black;
-  border-left: 2px solid black;
-}
-
-table tr:nth-last-child(2) {
-  border-right: 2px solid black;
-  border-left: 2px solid black;
 }
 
 table tr:nth-last-child(1) {
-  border-left: 2px solid black;
-  border-right: 2px solid black;
   border-bottom: 2px solid black;
 }
 
 table.page2 {
-  border: 1px solid black;
-  border-collapse: collapse;
-  font-family: "Ubuntu Mono", sans-serif;
-  font-size: 10pt;
-  text-align: left;
-  page-break-after: always;
-  table-layout: fixed;
   margin:.5in .5in .5in 1in;
 }
 
@@ -75,12 +62,8 @@ h1, p {
 
 .p1box {
   border-top: 2px solid black;
-  border-left: 2px solid black;
-  border-bottom: 2px solid black;
 }
 
 .p2box {
   border-top: 2px solid black;
-  border-right: 2px solid black;
-  border-bottom: 2px solid black;
 }
