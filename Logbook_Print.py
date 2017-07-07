@@ -104,8 +104,8 @@ for i in range(1, len(values_master)):
 def p1header_row(values, year):
     writer.write('<table class=page1>')
     writer.write('<col width="70">')
-    writer.write('<col width="80">')
-    writer.write('<col width="100">')
+    writer.write('<col width="75">')
+    writer.write('<col width="105">')
     writer.write('<col width="60">')
     writer.write('<col width="60">')
     writer.write('<col width="85">')
