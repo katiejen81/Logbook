@@ -108,13 +108,13 @@ def p1header_row(values, year):
     writer.write('<col width="105">')
     writer.write('<col width="60">')
     writer.write('<col width="60">')
-    writer.write('<col width="85">')
+    writer.write('<col class="gray" width="85">')
     writer.write('<col width="95">')
-    writer.write('<col width="85">')
+    writer.write('<col class= "gray" width="85">')
     writer.write('<col width="95">')
-    writer.write('<col width="80">')
+    writer.write('<col class="gray" width="80">')
     writer.write('<col width="50">')
-    writer.write('<col width="40">')
+    writer.write('<col class="gray" width="40">')
     writer.write('<col width="40">')
     writer.write('<tr>')
     writer.write('<th colspan = "3">YEAR ' \
@@ -130,22 +130,22 @@ def p1header_row(values, year):
             continue
         elif 'LANDINGS' in i:
             i = i.split(' ')[1]
-        j = '<td class=secondrow>' + i + '</td>'
+        j = '<th class=secondrow>' + i + '</th>'
         writer.write(j)
     writer.write('</tr>')
 
 ##Defining the header row and fixed widths of the columns - page odd
 def p2header_row(values):
     writer.write('<table class=page2>')
-    writer.write('<col width="60">')
+    writer.write('<col class="gray" width="60">')
     writer.write('<col width="70">')
+    writer.write('<col class="gray" width="70">')
     writer.write('<col width="70">')
-    writer.write('<col width="70">')
-    writer.write('<col width="65">')
+    writer.write('<col class="gray" width="65">')
     writer.write('<col width="50">')
+    writer.write('<col class="gray" width="75">')
     writer.write('<col width="75">')
-    writer.write('<col width="75">')
-    writer.write('<col width="75">')
+    writer.write('<col class="gray" width="75">')
     writer.write('<col width="75">')
     writer.write('<col width="255">')
     writer.write('<tr>')
@@ -159,7 +159,7 @@ def p2header_row(values):
             continue
         elif i == 'REMARKS AND ENDORSEMENTS':
             continue
-        j = '<td class=secondrow>' + i + '</td>'
+        j = '<th class=secondrow>' + i + '</th>'
         writer.write(j)
     writer.write('</tr>')
 
