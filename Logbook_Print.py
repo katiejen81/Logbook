@@ -136,17 +136,17 @@ def p1header_row(values, year):
 ##Defining the header row and fixed widths of the columns - page odd
 def p2header_row(values):
     writer.write('<table class=page2>')
-    writer.write('<col width="70">')
+    writer.write('<col width="60">')
     writer.write('<col width="70">')
     writer.write('<col width="70">')
     writer.write('<col width="70">')
     writer.write('<col width="65">')
+    writer.write('<col width="50">')
     writer.write('<col width="75">')
     writer.write('<col width="75">')
     writer.write('<col width="75">')
     writer.write('<col width="75">')
-    writer.write('<col width="75">')
-    writer.write('<col width="220">')
+    writer.write('<col width="255">')
     writer.write('<tr>')
     writer.write('<th colspan = "3">CONDITIONS OF FLIGHT</th>')
     writer.write('<th rowspan = "2">FLIGHT SIMULATOR</th>')
@@ -177,7 +177,7 @@ def page_divide(header_list, input_dict):
 
 ##Function that dynamically defines the pages - page 2
 def page_chunk(input_dict):
-    length_list = [70, 70, 70, 80, 75, 75, 75, 75, 75, 75, 210]
+    length_list = [60, 70, 70, 70, 65, 50, 75, 75, 75, 75, 245]
     record_rows = 0
     temp_list = list()
     temp_height_list = list()
