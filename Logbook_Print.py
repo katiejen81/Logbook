@@ -286,9 +286,10 @@ def page1_write(input_range, input_data, input_headers, prev_totals):
                     ['TOTALS THIS PAGE', 'AMT. FORWARDED', 'TOTALS TO DATE']):
         if n == 'TOTALS THIS PAGE':
             writer.write('<tr>')
-            writer.write('<th colspan="2" rowspan = "4">Totals</th>')
+            writer.write('<th class="p1box" colspan="2" rowspan = "4">Totals</th>')
+            writer.write('</tr>')
         writer.write('<tr>')
-        writer.write('<th colspan="3">' + n + ' </th>')
+        writer.write('<td class="boldcenter" colspan="3">' + n + ' </td>')
         for k in input_headers:
             if k in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT', 'FROM',
                      'TO']:
@@ -330,7 +331,7 @@ def page2_write(input_range, input_data, input_headers, prev_totals):
         writer.write('<tr>')
         for l in page2_list:
             if l == 'REMARKS AND ENDORSEMENTS' and n == 'TOTALS THIS PAGE':
-                writer.write('<th rowspan="4" align="center" style="font-size: 9px;">I certify that the entries in this ' + \
+                writer.write('<th class="p2box" rowspan="4" align="center" style="font-size: 9px;">I certify that the entries in this ' + \
                              'log are true<br><br>____________________________________' + \
                              '<br>PILOT SIGNATURE</th>')
             elif l == 'REMARKS AND ENDORSEMENTS' and n != 'TOTALS THIS PAGE':
