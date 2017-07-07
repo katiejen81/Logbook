@@ -27,11 +27,14 @@ th, tr, td {
 }
 
 th {
-  text-align: center
+  text-align: center;
+  background: #FFFFFF;
 }
 
-td.secondrow {
-  text-align: center
+th.secondrow {
+  text-align: center;
+  font-weight:normal;
+  background: #FFFFFF;
 }
 
 .pagebreak {
@@ -42,4 +45,8 @@ h1, p {
   text-align: center;
   font-family: "Ubuntu Mono", sans-serif;
   margin-bottom: .5in;
+}
+
+.gray {
+  background: #D0D3D4;
 }
