@@ -42,6 +42,7 @@ except ImportError:
     flags = None
 
 import numpy as np
+from datetime import datetime
 
 #Setting objects for credentials
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
@@ -234,6 +235,23 @@ def page_chunk(input_dict):
         index_list.append(val)
     return index_list
 
+##Function that writes out the year for the header of the table
+def year_compute(input_range, input_dict):
+    start = input_range[0]
+    end = input_range[1]
+    table = input_dict[start:end]
+    temp_list = list()
+    for j in table:
+        date = datetime.strptime(j['DATE'], '%M/%d/%Y').date().strftime('%Y')
+        if date in temp_list:
+            continue
+        temp_list.append(date)
+    if len(temp_list) == 1:
+        year = temp_list[0]
+    else:
+        year = '/'.join(temp_list)
+    return year
+
 ##Function to write out the table rows and cells past the header row - Page 1
 def page1_write(input_range, input_data, input_headers, prev_totals):
     start = input_range[0]
@@ -359,7 +377,8 @@ with open('Logbook_Print.html', 'wb') as writer:
     writer.write('<p>Logbook from insert_date to insert_date</p>')
     writer.write('<div class="pagebreak"> </div>')
     for i in index_list:
-        p1header_row(page1_list, 'TEST')
+        year = year_compute(i, page1_dict)
+        p1header_row(page1_list, year)
         prev = page1_write(i, page1_dict, page1_list, prev1_totals)
         prev1_totals = prev
         p2header_row(page2_list)
