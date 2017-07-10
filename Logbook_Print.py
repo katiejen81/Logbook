@@ -145,9 +145,9 @@ def p2header_row(values):
     writer.write('<col width="50">')
     writer.write('<col class="gray" width="75">')
     writer.write('<col width="75">')
-    writer.write('<col class="gray" width="75">')
+    writer.write('<col class="gray" width="65">')
     writer.write('<col width="75">')
-    writer.write('<col width="255">')
+    writer.write('<col width="265">')
     writer.write('<tr>')
     writer.write('<th colspan = "3">CONDITIONS OF FLIGHT</th>')
     writer.write('<th rowspan = "2">FLIGHT SIMULATOR</th>')
@@ -178,7 +178,7 @@ def page_divide(header_list, input_dict):
 
 ##Function that dynamically defines the pages - page 2
 def page_chunk(input_dict):
-    length_list = [60, 70, 70, 70, 65, 50, 75, 75, 75, 75, 245]
+    length_list = [60, 70, 70, 70, 65, 50, 75, 75, 65, 75, 240]
     record_rows = 0
     temp_list = list()
     temp_height_list = list()
