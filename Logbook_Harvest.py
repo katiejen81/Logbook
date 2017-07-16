@@ -140,11 +140,6 @@ for i in value_dict:
         continue
     to_add.append(i)
 
-#Pull in a list of file so that we can find the schedule
-drive = discovery.build('drive', 'v3', http=http)
-
-files = drive.files().list().execute()
-
 #Pull in all files, need to loop through several pages
 files_list = os.listdir('/home/katie/Downloads/Mike Schedule')
 
