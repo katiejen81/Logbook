@@ -26,6 +26,7 @@ from __future__ import division
 import httplib2
 import os
 import csv
+from datetime import datetime
 
 try:
     from apiclient import discovery
@@ -193,14 +194,14 @@ for i in dates:
 
 #Sequence trips - Logbook
 dates = list()
-for i in value_dict:
+for i in to_add:
     if i['DATE'] in dates:
         continue
     dates.append(i['DATE'])
 
 for i in dates:
     seq_list = list()
-    for j in value_dict:
+    for j in to_add:
         if (j['FROM'], j['TO']) not in seq_list:
             seq_list.append((j['FROM'], j['TO']))
             j['Sequence'] = 1
@@ -208,16 +209,23 @@ for i in dates:
         elif (j['FROM'], j['TO']) in seq_list:
             counter = counter + 1
             j['Sequence'] = counter
+            
+#Normalize dates so that they can be joined
+for i in to_add:
+    i['d'] = datetime.strptime(i['DATE'], '%m/%d/%Y')
+    
+for i in schedule_dict:
+    i['d'] = datetime.strptime(i['Date'], '%m/%d/%Y')
 
 #Join the Information in the logbook to the schedule
 
 Total_sheet = list()
 
-for i in value_dict:
+for i in to_add:
     for j in schedule_dict:
         if j['Origin'] == i['FROM'] \
             and j['Dest'] == i['TO'] \
-            and j['Date'] == i['DATE'] \
+            and j['d'] == i['d'] \
             and j['Sequence'] == i['Sequence']:
                 data = j
                 data['AIRCRAFT MAKE AND MODEL'] = i['AIRCRAFT MAKE AND MODEL']
@@ -243,8 +251,9 @@ for i in value_dict:
                 data['SECOND IN COMMAND'] = j['Block']
                 Total_sheet.append(data)
 
-#Append to the master
+#Append to the master and join to the master
 for i in Total_sheet:
+    del i['d']
     value_dict_master.append(i)
 
 #Look for values that were not appended
