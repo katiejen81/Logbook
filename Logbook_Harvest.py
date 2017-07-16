@@ -25,6 +25,7 @@ Copyright (C) 2017  Kathryn Tanner
 from __future__ import division
 import httplib2
 import os
+import csv
 
 try:
     from apiclient import discovery
@@ -34,6 +35,12 @@ except:
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+
+try:
+    import argparse
+    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+except ImportError:
+    flags = None
 
 #Setting objects for credentials
 scope = ('https://www.googleapis.com/auth/spreadsheets',
@@ -49,23 +56,42 @@ except:
     os.chdir('/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook')
 
 #Getting credentials
-store = Storage('authorization.json')
 credential_path = os.path.join(os.getcwd(),
-                                   'sheets.googleapis.com-Logbook.json')
+                                   'authorization.json')
+store = Storage('authorization.json')
+
 
 flow = client.flow_from_clientsecrets(client_secret, scope)
 flow.user_agent = display_name
 
+credentials = store.get()#Setting the working directory
+try:
+    os.chdir('/home/katie/Documents/Logbook')
+#working directory on desktop computer
+except:
+    os.chdir('/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook')
+
+#Getting credentials
+credential_path = os.path.join(os.getcwd(),
+                                   'authorization.json')
+store = Storage('authorization.json')
 credentials = store.get()
 
+if not credentials or credentials.invalid:
+    flow = client.flow_from_clientsecrets(client_secret, scope)
+    flow.user_agent = display_name
+    if flags:
+        credentials = tools.run_flow(flow, store, flags)
+        print('Storing credentials to ' + credential_path)
 
-#Pull in data from the current spreadsheet
+#Authorize credentials
 http = credentials.authorize(httplib2.Http())
 
 discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
 service = discovery.build('sheets', 'v4', http=http,
                               discoveryServiceUrl=discoveryUrl)
+
 
 spreadsheetId = '1LNX6rDPsm8iN47LjPdK_8BJmhSvL4SqdGe79I9mvFaY'
 rangeName = 'Form Responses 1!A:P'
@@ -120,43 +146,33 @@ drive = discovery.build('drive', 'v3', http=http)
 files = drive.files().list().execute()
 
 #Pull in all files, need to loop through several pages
-files_list = list()
-while True:
-    if files.get('nextPageToken', None) == None:
-        break
-    for i in files['files']:
-        files_list.append(i)
-    nextPage = dict()
-    nextPage['pageToken'] = files['nextPageToken']
-    files = drive.files().list(**nextPage).execute()
+files_list = os.listdir('/home/katie/Downloads/Mike Schedule')
 
 schedules = list()
 for i in files_list:
-    if '7048196' not in i['name']:
+    if '7048196' not in i:
         continue
-    fileid = (i['id'], i['name'])
-    schedules.append(fileid)
+    schedules.append('/home/katie/Downloads/Mike Schedule/' + i)
+
+schedule_data = list()    
+for i in schedules:
+    with open(i, 'rb') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            schedule_data.append(row)
+            
+schedule_headers = schedule_data[0]
 
 #Pull in the schedule
-for i in schedules:
-    rangeName2 =  i[1] + '!A:N'
-    result2 = service.spreadsheets().values().get(
-        spreadsheetId=i[0], range=rangeName2).execute()
-    if schedules.index(i) == 0:
-        schedule = (result2.get('values', []))
-    else:
-        for j in result2.get('values', []):
-            schedule.append(j)
-
-schedule_headers = schedule[0]
 schedule_dict = list()
-for i in range(1, len(schedule)):
-    j = schedule[i]
+for i in schedule_data:
+    if i == schedule_headers:
+        continue
     data = dict()
-    for l, m in zip(schedule_headers, j):
-        data[l] = m
+    for j, k in zip(i, schedule_headers):
+        data[k] = j
     schedule_dict.append(data)
-
+            
 #Sequence trips - Schedule
 dates = list()
 for i in schedule_dict:
