@@ -27,6 +27,7 @@ import httplib2
 import os
 import csv
 from datetime import datetime
+import collections
 
 try:
     from apiclient import discovery
@@ -160,14 +161,27 @@ for i in schedules:
 schedule_headers = schedule_data[0]
 
 #Pull in the schedule
-schedule_dict = list()
+temp_dict = list()
 for i in schedule_data:
     if i == schedule_headers:
         continue
     data = dict()
     for j, k in zip(i, schedule_headers):
         data[k] = j
-    schedule_dict.append(data)
+    temp_dict.append(data)
+    
+#Create a hashkey that allows us to identify unique values
+for i in temp_dict:
+    i['Hashkey'] = hash(frozenset(i.items()))
+    
+#Dedupe our list
+seen_before = list()
+schedule_dict = list()
+for i in temp_dict:
+    if i['Hashkey'] in seen_before:
+        continue
+    seen_before.append(i['Hashkey'])
+    schedule_dict.append(i)
             
 #Sequence trips - Schedule
 dates = list()
@@ -199,16 +213,26 @@ for i in to_add:
         continue
     dates.append(i['DATE'])
 
+seq_list = list()  
 for i in dates:
-    seq_list = list()
+    data = dict()
+    pair_count = list()
     for j in to_add:
-        if (j['FROM'], j['TO']) not in seq_list:
-            seq_list.append((j['FROM'], j['TO']))
-            j['Sequence'] = 1
-            counter = 1
-        elif (j['FROM'], j['TO']) in seq_list:
-            counter = counter + 1
-            j['Sequence'] = counter
+        if j['DATE'] != i:
+            continue
+        pair = (j['FROM'], j['TO'])
+        pair_count.append(pair)
+    counter = collections.Counter(pair_count)
+    data['Date'] = i
+    data['Seq_list'] = dict(counter)
+    seq_list.append(data)
+        
+for i in to_add:
+    key_pair = (i['FROM'], i['TO'])
+    for j in seq_list:
+        if i['DATE'] == j['Date']:
+            i['Sequence'] = j['Seq_list'][key_pair]
+    
             
 #Normalize dates so that they can be joined
 for i in to_add:
