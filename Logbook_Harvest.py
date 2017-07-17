@@ -27,7 +27,6 @@ import httplib2
 import os
 import csv
 from datetime import datetime
-import collections
 
 try:
     from apiclient import discovery
@@ -183,55 +182,30 @@ for i in temp_dict:
     seen_before.append(i['Hashkey'])
     schedule_dict.append(i)
             
-#Sequence trips - Schedule
-dates = list()
-for i in schedule_dict:
-    if i['Date'] in dates:
-        continue
-    dates.append(i['Date'])
-
-for i in dates:
-    seq_list = list()
-    for j in schedule_dict:
-        if j['Date'] == i:
-            if (j['Origin'], j['Dest']) not in seq_list:
-                seq_list.append((j['Origin'], j['Dest']))
-                j['Sequence'] = 1
-                counter = 1
-            elif (j['Origin'], j['Dest']) in seq_list:
-                counter = counter + 1
-                j['Sequence'] = counter
-
-#Testing the sequencer
-#for i in schedule_dict:
-#    print(i['Date'] + '\t' + i['Origin'] + '\t' + i['Dest'] + '\t' + str(i['Sequence']))
-
-#Sequence trips - Logbook
-dates = list()
-for i in to_add:
-    if i['DATE'] in dates:
-        continue
-    dates.append(i['DATE'])
-
-seq_list = list()  
-for i in dates:
-    data = dict()
-    pair_count = list()
-    for j in to_add:
-        if j['DATE'] != i:
+#Sequence trips 
+def sequencer(data, datefield, Originvar, Destvar):
+    dates = list()
+    for i in data:
+        if i[datefield] in dates:
             continue
-        pair = (j['FROM'], j['TO'])
-        pair_count.append(pair)
-    counter = collections.Counter(pair_count)
-    data['Date'] = i
-    data['Seq_list'] = dict(counter)
-    seq_list.append(data)
-        
-for i in to_add:
-    key_pair = (i['FROM'], i['TO'])
-    for j in seq_list:
-        if i['DATE'] == j['Date']:
-            i['Sequence'] = j['Seq_list'][key_pair]
+        dates.append(i[datefield])
+    for i in dates:
+        pair_count = dict()
+        for j in data:            
+            if j[datefield] != i:
+                continue
+            pair = (j[Originvar], j[Destvar])
+            if pair_count.get(pair, '') == '':
+                pair_count[pair] = 1
+                j['Sequence'] = 1
+            else:
+                pair_count[pair] += 1
+                j['Sequence'] = pair_count[pair]
+    return data
+
+to_add = sequencer(to_add, 'DATE', 'FROM', 'TO')
+
+schedule_dict = sequencer(schedule_dict, 'Date', 'Origin', 'Dest')
     
             
 #Normalize dates so that they can be joined
