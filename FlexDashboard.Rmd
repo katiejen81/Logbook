@@ -1,0 +1,605 @@
+---
+title: "Recent Time Totals Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(googlesheets)
+suppressPackageStartupMessages(library("dplyr"))
+library(knitr)
+library(ggplot2)
+```
+
+```{r Authenticate, echo=FALSE}
+setwd("/home/katie/Documents/Logbook")
+gs_auth(token = "googlesheets_token.rds")
+
+```
+
+```{r Bring in Data, echo=FALSE}
+sheet <- gs_title('Logbook Master')
+data <- gs_read(sheet)
+```
+
+```{r Prepare data for Charting, echo=FALSE}
+data$DATE <- as.Date(data$DATE, "%m/%d/%Y")
+data$Date_Label <- format(data$DATE, "%Y-%m")
+```
+
+```{r Last 30 Days Calculations, echo=FALSE}
+maxdate <- max(data$DATE)
+last30 <- maxdate - 30
+last30data <- subset(data, data$DATE >= last30)
+last30agg <- aggregate(last30data$`TOTAL DURATION OF FLIGHT`, by=list(last30data$Date_Label), FUN=sum)
+colnames(last30agg) <- c("Month", "Total_Hours")
+last30total <- sum(last30agg$Total_Hours)
+text1 = paste('Data is current through', maxdate, '.<br>')
+text2 = paste('Last 30 days is from ', last30, 'forward.')
+```
+
+```{r Last 60 Days Calculations, echo=FALSE}
+last60 <- maxdate - 60
+last60data <- subset(data, data$DATE >= last60)
+last60agg <- aggregate(last60data$`TOTAL DURATION OF FLIGHT`, by=list(last60data$Date_Label), FUN=sum)
+colnames(last60agg) <- c("Month", "Total_Hours")
+last60total <- sum(last60agg$Total_Hours)
+text3 = paste('Data is current through', maxdate, '.<br>')
+text4 = paste('Last 60 days is from ', last60, 'forward.')
+```
+
+```{r Last 90 Days Calculations, echo=FALSE}
+last90 <- maxdate - 90
+last90data <- subset(data, data$DATE >= last90)
+last90agg <- aggregate(last90data$`TOTAL DURATION OF FLIGHT`, by=list(last90data$Date_Label), FUN=sum)
+colnames(last90agg) <- c("Month", "Total_Hours")
+last90total <- sum(last90agg$Total_Hours)
+text5 = paste('Data is current through', maxdate, '.<br>')
+text6 = paste('Last 90 days is from ', last90, 'forward.')
+```
+
+```{r Last 12 months chart, echo=FALSE}
+lastyear <- maxdate - 365
+lastyeardata <- subset(data, data$DATE >= lastyear)
+lastyearagg <- aggregate(lastyeardata$`TOTAL DURATION OF FLIGHT`, by=list(lastyeardata$Date_Label), FUN=sum)
+colnames(lastyearagg) <- c("Month", "Total_Hours")
+
+lastyearcount <- count(lastyeardata, Date_Label)
+colnames(lastyearcount) <- c("Month", "Takeoffs")
+
+lastyearagg <- merge(lastyearagg, lastyearcount, by = "Month")
+```
+
+
+```{r Functions and formulas for gauge charts, echo=FALSE}
+# function to create a circle
+circle <- function(center=c(0,0), radius=1, npoints=100)
+{
+  r = radius
+  tt = seq(0, 2*pi, length=npoints)
+  xx = center[1] + r * cos(tt)
+  yy = center[1] + r * sin(tt)
+  return(data.frame(x = xx, y = yy))
+}
+
+# function to get slices
+slice2xy <- function(t, rad) 
+{
+  t2p = -1 * t * pi + 10*pi/8
+  list(x = rad * cos(t2p), y = rad * sin(t2p))
+}
+
+# function to get major and minor tick marks
+ticks <- function(center=c(0,0), from=0, to=2*pi, radius=0.9, npoints=5)
+{
+  r = radius
+  tt = seq(from, to, length=npoints)
+  xx = center[1] + r * cos(tt)
+  yy = center[1] + r * sin(tt)
+  return(data.frame(x = xx, y = yy))
+}
+
+# external circle (this will be used for the black border)
+border_cir = circle(c(0,0), radius=1, npoints = 100)
+
+# gray border circle
+external_cir = circle(c(0,0), radius=0.97, npoints = 100)
+
+# yellow slice (this will be used for the yellow band)
+yellowFrom = 75
+yellowTo = 90
+yel_ini = (yellowFrom/100) * (12/8)
+yel_fin = (yellowTo/100) * (12/8)
+Syel = slice2xy(seq.int(yel_ini, yel_fin, length.out = 30), rad=0.9)
+
+# red slice (this will be used for the red band)
+redFrom = 90
+redTo = 100
+red_ini = (redFrom/100) * (12/8)
+red_fin = (redTo/100) * (12/8)
+Sred = slice2xy(seq.int(red_ini, red_fin, length.out = 30), rad=0.9)
+
+# white slice (this will be used to get the yellow and red bands)
+whiteFrom = 74
+whiteTo = 101
+white_ini = (whiteFrom/100) * (12/8)
+white_fin = (whiteTo/100) * (12/8)
+Swhi = slice2xy(seq.int(white_ini, white_fin, length.out = 30), rad=0.8)
+
+# coordinates of major ticks (will be plotted as arrows)
+major_ticks_out = ticks(c(0,0), from=5*pi/4, to=-pi/4, radius=0.9, 5)
+major_ticks_in = ticks(c(0,0), from=5*pi/4, to=-pi/4, radius=0.75, 5)
+
+# coordinates of minor ticks (will be plotted as arrows)
+tix1_out = ticks(c(0,0), from=5*pi/4, to=5*pi/4-3*pi/8, radius=0.9, 6)
+tix2_out = ticks(c(0,0), from=7*pi/8, to=7*pi/8-3*pi/8, radius=0.9, 6)
+tix3_out = ticks(c(0,0), from=4*pi/8, to=4*pi/8-3*pi/8, radius=0.9, 6)
+tix4_out = ticks(c(0,0), from=pi/8, to=pi/8-3*pi/8, radius=0.9, 6)
+tix1_in = ticks(c(0,0), from=5*pi/4, to=5*pi/4-3*pi/8, radius=0.85, 6)
+tix2_in = ticks(c(0,0), from=7*pi/8, to=7*pi/8-3*pi/8, radius=0.85, 6)
+tix3_in = ticks(c(0,0), from=4*pi/8, to=4*pi/8-3*pi/8, radius=0.85, 6)
+tix4_in = ticks(c(0,0), from=pi/8, to=pi/8-3*pi/8, radius=0.85, 6)
+
+# coordinates of min and max values (0, 100)
+v0 = -1 * 0 * pi + 10*pi/8
+z0x = 0.65 * cos(v0)
+z0y = 0.65 * sin(v0)
+v100 = -1 * 12/8 * pi + 10*pi/8
+z100x = 0.65 * cos(v100)
+z100y = 0.65 * sin(v100)
+```
+
+Metrics Last 30 Days
+==============================
+
+Column {data-width=600}
+-----------------------------------------------------------------------
+
+
+### Top 10 Most Traveled to Places - last 30 days
+
+```{r Most Traveled Places 30 Days, echo=FALSE}
+count <- count(last30data, TO)
+count <- count[order(-count$n),]
+count <- head(count, 10)
+
+ggplot(count, aes(TO, n))+geom_bar(stat="identity", fill="#034f84") + xlab('Airport') + ylab('Number of arrivals')
+```
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Totals Last 30 Days
+```{r Gauge Chart last 30, echo=FALSE}
+
+# indicated value, say 80 (you can choose another number between 0-100)
+value = last30total
+
+# angle of needle pointing to the specified value
+val = (value/100) * (12/8)
+v = -1 * val * pi + 10*pi/8
+# x-y coordinates of needle
+val_x = 0.7 * cos(v)
+val_y = 0.7 * sin(v)
+
+# label to be displayed
+label = "Last 30 Days"
+
+# open plot
+plot(border_cir$x, border_cir$y, type="n", asp=1, axes=FALSE,
+     xlim=c(-1.05,1.05), ylim=c(-1.05,1.05),
+     xlab="", ylab="")
+# yellow slice
+polygon(c(Syel$x, 0), c(Syel$y, 0),
+        border = "#FF9900", col = "#FF9900", lty = NULL)
+# red slice
+polygon(c(Sred$x, 0), c(Sred$y, 0),
+        border = "#DC3912", col = "#DC3912", lty = NULL)
+# white slice
+polygon(c(Swhi$x, 0), c(Swhi$y, 0),
+        border = "white", col = "white", lty = NULL)
+# add gray border
+lines(external_cir$x, external_cir$y, col="gray85", lwd=20)
+# add external border
+lines(border_cir$x, border_cir$y, col="gray20", lwd=2)
+# add minor ticks
+arrows(x0=tix1_out$x, y0=tix1_out$y, x1=tix1_in$x, y1=tix1_in$y,
+       length=0, lwd=2.5, col="gray55")
+arrows(x0=tix2_out$x, y0=tix2_out$y, x1=tix2_in$x, y1=tix2_in$y,
+       length=0, lwd=2.5, col="gray55")
+arrows(x0=tix3_out$x, y0=tix3_out$y, x1=tix3_in$x, y1=tix3_in$y,
+       length=0, lwd=2.5, col="gray55")
+arrows(x0=tix4_out$x, y0=tix4_out$y, x1=tix4_in$x, y1=tix4_in$y,
+       length=0, lwd=2.5, col="gray55")
+# add major ticks
+arrows(x0=major_ticks_out$x, y0=major_ticks_out$y,
+       x1=major_ticks_in$x, y1=major_ticks_in$y, length=0, lwd=4)
+# add value
+text(0, -0.65, value, cex=1.75)
+# add label of variable
+text(0, 0.43, label, cex=1)
+# add needle
+arrows(0, 0, val_x, val_y, col="#f38171", lwd=7)
+# add central blue point
+points(0, 0, col="#2e9ef3", pch=19, cex=5)
+# add values 0 and 100
+text(z0x, z0y, labels="0", col="gray50")
+text(z100x, z100y, labels="100", col="gray50")
+
+```
+
+```{r 30 days text, echo=FALSE, results="asis"}
+cat(text1)
+cat(text2)
+```
+
+
+### Flight Data Last 30 Days
+
+```{r Table by Month, echo=FALSE}
+colnames(last30agg) <- c("Month", "Total Hours")
+knitr::kable(last30agg)
+```
+
+Metrics Last 60 Days
+==============================
+
+```{r Functions and formulas for gauge charts 60, echo=FALSE}
+# function to create a circle
+circle <- function(center=c(0,0), radius=1, npoints=100)
+{
+  r = radius
+  tt = seq(0, 2*pi, length=npoints)
+  xx = center[1] + r * cos(tt)
+  yy = center[1] + r * sin(tt)
+  return(data.frame(x = xx, y = yy))
+}
+
+# function to get slices
+slice2xy <- function(t, rad) 
+{
+  t2p = -1 * t * pi + 10*pi/8
+  list(x = rad * cos(t2p), y = rad * sin(t2p))
+}
+
+# function to get major and minor tick marks
+ticks <- function(center=c(0,0), from=0, to=2*pi, radius=0.9, npoints=5)
+{
+  r = radius
+  tt = seq(from, to, length=npoints)
+  xx = center[1] + r * cos(tt)
+  yy = center[1] + r * sin(tt)
+  return(data.frame(x = xx, y = yy))
+}
+
+# external circle (this will be used for the black border)
+border_cir = circle(c(0,0), radius=1, npoints = 100)
+
+# gray border circle
+external_cir = circle(c(0,0), radius=0.97, npoints = 100)
+
+# yellow slice (this will be used for the yellow band)
+yellowFrom = 75
+yellowTo = 90
+yel_ini = (yellowFrom/100) * (12/8)
+yel_fin = (yellowTo/100) * (12/8)
+Syel = slice2xy(seq.int(yel_ini, yel_fin, length.out = 30), rad=0.9)
+
+# red slice (this will be used for the red band)
+redFrom = 90
+redTo = 100
+red_ini = (redFrom/100) * (12/8)
+red_fin = (redTo/100) * (12/8)
+Sred = slice2xy(seq.int(red_ini, red_fin, length.out = 30), rad=0.9)
+
+# white slice (this will be used to get the yellow and red bands)
+whiteFrom = 74
+whiteTo = 101
+white_ini = (whiteFrom/100) * (12/8)
+white_fin = (whiteTo/100) * (12/8)
+Swhi = slice2xy(seq.int(white_ini, white_fin, length.out = 30), rad=0.8)
+
+# coordinates of major ticks (will be plotted as arrows)
+major_ticks_out = ticks(c(0,0), from=5*pi/4, to=-pi/4, radius=0.9, 5)
+major_ticks_in = ticks(c(0,0), from=5*pi/4, to=-pi/4, radius=0.75, 5)
+
+# coordinates of minor ticks (will be plotted as arrows)
+tix1_out = ticks(c(0,0), from=5*pi/4, to=5*pi/4-3*pi/8, radius=0.9, 6)
+tix2_out = ticks(c(0,0), from=7*pi/8, to=7*pi/8-3*pi/8, radius=0.9, 6)
+tix3_out = ticks(c(0,0), from=4*pi/8, to=4*pi/8-3*pi/8, radius=0.9, 6)
+tix4_out = ticks(c(0,0), from=pi/8, to=pi/8-3*pi/8, radius=0.9, 6)
+tix1_in = ticks(c(0,0), from=5*pi/4, to=5*pi/4-3*pi/8, radius=0.85, 6)
+tix2_in = ticks(c(0,0), from=7*pi/8, to=7*pi/8-3*pi/8, radius=0.85, 6)
+tix3_in = ticks(c(0,0), from=4*pi/8, to=4*pi/8-3*pi/8, radius=0.85, 6)
+tix4_in = ticks(c(0,0), from=pi/8, to=pi/8-3*pi/8, radius=0.85, 6)
+
+# coordinates of min and max values (0, 100)
+v0 = -1 * 0 * pi + 10*pi/8
+z0x = 0.65 * cos(v0)
+z0y = 0.65 * sin(v0)
+v200 = -1 * 12/8 * pi + 10*pi/8
+z200x = 0.65 * cos(v200)
+z200y = 0.65 * sin(v200)
+```
+
+Column {data-width=600}
+-----------------------------------------------------------------------
+
+
+### Top 10 Most Traveled to Places - last 60 days
+
+```{r Most Traveled Places 60 Days, echo=FALSE}
+count <- count(last60data, TO)
+count <- count[order(-count$n),]
+count <- head(count, 10)
+
+ggplot(count, aes(TO, n))+geom_bar(stat="identity", fill="#034f84") + xlab('Airport') + ylab('Number of arrivals')
+```
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Totals Last 60 Days
+```{r Gauge Chart last 60, echo=FALSE}
+
+# indicated value, say 80 (you can choose another number between 0-200)
+value = last60total
+
+# angle of needle pointing to the specified value
+val = (value/200) * (12/8)
+v = -1 * val * pi + 10*pi/8
+# x-y coordinates of needle
+val_x = 0.7 * cos(v)
+val_y = 0.7 * sin(v)
+
+# label to be displayed
+label = "Last 60 Days"
+
+# open plot
+plot(border_cir$x, border_cir$y, type="n", asp=1, axes=FALSE,
+     xlim=c(-1.05,1.05), ylim=c(-1.05,1.05),
+     xlab="", ylab="")
+# yellow slice
+polygon(c(Syel$x, 0), c(Syel$y, 0),
+        border = "#FF9900", col = "#FF9900", lty = NULL)
+# red slice
+polygon(c(Sred$x, 0), c(Sred$y, 0),
+        border = "#DC3912", col = "#DC3912", lty = NULL)
+# white slice
+polygon(c(Swhi$x, 0), c(Swhi$y, 0),
+        border = "white", col = "white", lty = NULL)
+# add gray border
+lines(external_cir$x, external_cir$y, col="gray85", lwd=20)
+# add external border
+lines(border_cir$x, border_cir$y, col="gray20", lwd=2)
+# add minor ticks
+arrows(x0=tix1_out$x, y0=tix1_out$y, x1=tix1_in$x, y1=tix1_in$y,
+       length=0, lwd=2.5, col="gray55")
+arrows(x0=tix2_out$x, y0=tix2_out$y, x1=tix2_in$x, y1=tix2_in$y,
+       length=0, lwd=2.5, col="gray55")
+arrows(x0=tix3_out$x, y0=tix3_out$y, x1=tix3_in$x, y1=tix3_in$y,
+       length=0, lwd=2.5, col="gray55")
+arrows(x0=tix4_out$x, y0=tix4_out$y, x1=tix4_in$x, y1=tix4_in$y,
+       length=0, lwd=2.5, col="gray55")
+# add major ticks
+arrows(x0=major_ticks_out$x, y0=major_ticks_out$y,
+       x1=major_ticks_in$x, y1=major_ticks_in$y, length=0, lwd=4)
+# add value
+text(0, -0.65, value, cex=1.75)
+# add label of variable
+text(0, 0.43, label, cex=1)
+# add needle
+arrows(0, 0, val_x, val_y, col="#f38171", lwd=7)
+# add central blue point
+points(0, 0, col="#2e9ef3", pch=19, cex=5)
+# add values 0 and 100
+text(z0x, z0y, labels="0", col="gray50")
+text(z200x, z200y, labels="200", col="gray50")
+
+```
+
+```{r 60 days text, echo=FALSE, results="asis"}
+cat(text3)
+cat(text4)
+```
+
+### Flight Data Last 60 Days
+
+```{r Table by Month 60, echo=FALSE}
+colnames(last60agg) <- c("Month", "Total Hours")
+knitr::kable(last60agg)
+```
+
+Metrics Last 90 Days
+==============================
+
+```{r Functions and formulas for gauge charts 90, echo=FALSE}
+# function to create a circle
+circle <- function(center=c(0,0), radius=1, npoints=100)
+{
+  r = radius
+  tt = seq(0, 2*pi, length=npoints)
+  xx = center[1] + r * cos(tt)
+  yy = center[1] + r * sin(tt)
+  return(data.frame(x = xx, y = yy))
+}
+
+# function to get slices
+slice2xy <- function(t, rad) 
+{
+  t2p = -1 * t * pi + 10*pi/8
+  list(x = rad * cos(t2p), y = rad * sin(t2p))
+}
+
+# function to get major and minor tick marks
+ticks <- function(center=c(0,0), from=0, to=2*pi, radius=0.9, npoints=5)
+{
+  r = radius
+  tt = seq(from, to, length=npoints)
+  xx = center[1] + r * cos(tt)
+  yy = center[1] + r * sin(tt)
+  return(data.frame(x = xx, y = yy))
+}
+
+# external circle (this will be used for the black border)
+border_cir = circle(c(0,0), radius=1, npoints = 100)
+
+# gray border circle
+external_cir = circle(c(0,0), radius=0.97, npoints = 100)
+
+# yellow slice (this will be used for the yellow band)
+yellowFrom = 75
+yellowTo = 90
+yel_ini = (yellowFrom/100) * (12/8)
+yel_fin = (yellowTo/100) * (12/8)
+Syel = slice2xy(seq.int(yel_ini, yel_fin, length.out = 30), rad=0.9)
+
+# red slice (this will be used for the red band)
+redFrom = 90
+redTo = 100
+red_ini = (redFrom/100) * (12/8)
+red_fin = (redTo/100) * (12/8)
+Sred = slice2xy(seq.int(red_ini, red_fin, length.out = 30), rad=0.9)
+
+# white slice (this will be used to get the yellow and red bands)
+whiteFrom = 74
+whiteTo = 101
+white_ini = (whiteFrom/100) * (12/8)
+white_fin = (whiteTo/100) * (12/8)
+Swhi = slice2xy(seq.int(white_ini, white_fin, length.out = 30), rad=0.8)
+
+# coordinates of major ticks (will be plotted as arrows)
+major_ticks_out = ticks(c(0,0), from=5*pi/4, to=-pi/4, radius=0.9, 5)
+major_ticks_in = ticks(c(0,0), from=5*pi/4, to=-pi/4, radius=0.75, 5)
+
+# coordinates of minor ticks (will be plotted as arrows)
+tix1_out = ticks(c(0,0), from=5*pi/4, to=5*pi/4-3*pi/8, radius=0.9, 6)
+tix2_out = ticks(c(0,0), from=7*pi/8, to=7*pi/8-3*pi/8, radius=0.9, 6)
+tix3_out = ticks(c(0,0), from=4*pi/8, to=4*pi/8-3*pi/8, radius=0.9, 6)
+tix4_out = ticks(c(0,0), from=pi/8, to=pi/8-3*pi/8, radius=0.9, 6)
+tix1_in = ticks(c(0,0), from=5*pi/4, to=5*pi/4-3*pi/8, radius=0.85, 6)
+tix2_in = ticks(c(0,0), from=7*pi/8, to=7*pi/8-3*pi/8, radius=0.85, 6)
+tix3_in = ticks(c(0,0), from=4*pi/8, to=4*pi/8-3*pi/8, radius=0.85, 6)
+tix4_in = ticks(c(0,0), from=pi/8, to=pi/8-3*pi/8, radius=0.85, 6)
+
+# coordinates of min and max values (0, 100)
+v0 = -1 * 0 * pi + 10*pi/8
+z0x = 0.65 * cos(v0)
+z0y = 0.65 * sin(v0)
+v300 = -1 * 12/8 * pi + 10*pi/8
+z300x = 0.65 * cos(v300)
+z300y = 0.65 * sin(v300)
+```
+
+Column {data-width=600}
+-----------------------------------------------------------------------
+
+
+### Top 10 Most Traveled to Places - last 90 days
+
+```{r Most Traveled Places 90 Days, echo=FALSE}
+count <- count(last90data, TO)
+count <- count[order(-count$n),]
+count <- head(count, 10)
+
+ggplot(count, aes(TO, n))+geom_bar(stat="identity", fill="#034f84") + xlab('Airport') + ylab('Number of arrivals')
+```
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Totals Last 90 Days
+```{r Gauge Chart last 90, echo=FALSE}
+
+# indicated value, say 80 (you can choose another number between 0-200)
+value = last90total
+
+# angle of needle pointing to the specified value
+val = (value/300) * (12/8)
+v = -1 * val * pi + 10*pi/8
+# x-y coordinates of needle
+val_x = 0.7 * cos(v)
+val_y = 0.7 * sin(v)
+
+# label to be displayed
+label = "Last 90 Days"
+
+# open plot
+plot(border_cir$x, border_cir$y, type="n", asp=1, axes=FALSE,
+     xlim=c(-1.05,1.05), ylim=c(-1.05,1.05),
+     xlab="", ylab="")
+# yellow slice
+polygon(c(Syel$x, 0), c(Syel$y, 0),
+        border = "#FF9900", col = "#FF9900", lty = NULL)
+# red slice
+polygon(c(Sred$x, 0), c(Sred$y, 0),
+        border = "#DC3912", col = "#DC3912", lty = NULL)
+# white slice
+polygon(c(Swhi$x, 0), c(Swhi$y, 0),
+        border = "white", col = "white", lty = NULL)
+# add gray border
+lines(external_cir$x, external_cir$y, col="gray85", lwd=20)
+# add external border
+lines(border_cir$x, border_cir$y, col="gray20", lwd=2)
+# add minor ticks
+arrows(x0=tix1_out$x, y0=tix1_out$y, x1=tix1_in$x, y1=tix1_in$y,
+       length=0, lwd=2.5, col="gray55")
+arrows(x0=tix2_out$x, y0=tix2_out$y, x1=tix2_in$x, y1=tix2_in$y,
+       length=0, lwd=2.5, col="gray55")
+arrows(x0=tix3_out$x, y0=tix3_out$y, x1=tix3_in$x, y1=tix3_in$y,
+       length=0, lwd=2.5, col="gray55")
+arrows(x0=tix4_out$x, y0=tix4_out$y, x1=tix4_in$x, y1=tix4_in$y,
+       length=0, lwd=2.5, col="gray55")
+# add major ticks
+arrows(x0=major_ticks_out$x, y0=major_ticks_out$y,
+       x1=major_ticks_in$x, y1=major_ticks_in$y, length=0, lwd=4)
+# add value
+text(0, -0.65, value, cex=1.75)
+# add label of variable
+text(0, 0.43, label, cex=1)
+# add needle
+arrows(0, 0, val_x, val_y, col="#f38171", lwd=7)
+# add central blue point
+points(0, 0, col="#2e9ef3", pch=19, cex=5)
+# add values 0 and 100
+text(z0x, z0y, labels="0", col="gray50")
+text(z300x, z300y, labels="300", col="gray50")
+
+```
+
+```{r 90 days text, echo=FALSE, results="asis"}
+cat(text5)
+cat(text6)
+```
+
+### Flight Data Last 90 Days
+
+```{r Table by Month 90, echo=FALSE}
+colnames(last90agg) <- c("Month", "Total Hours")
+knitr::kable(last90agg)
+```
+
+
+Year to Date Trend 
+==============================
+
+Column
+---------------------------------
+
+### Total Time Trend Last 12 Months
+
+```{r 12 month total time trend, echo=FALSE}
+ggplot(lastyearagg) +
+  geom_bar(aes(x=Month, y=Total_Hours), stat="identity", fill="#034f84") +
+  geom_line(aes(x=Month, y=Takeoffs, group = 1), stat="identity", color = "#F5B041") +
+  geom_point(aes(x=Month, y=Takeoffs), color = "#F5B041") +
+  geom_text(aes(x=Month,y = Total_Hours, label=Total_Hours), vjust=1.5, colour="white") +
+  scale_y_continuous(sec.axis = sec_axis(~., name = "Takeoffs (line)")) +
+  ylab('Total Hours (bars)') +
+  xlab('Flight Date') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
