@@ -34,6 +34,14 @@ except:
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+import csv
+
+try:
+    import argparse
+    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+except ImportError:
+    flags = None
+
 
 #Setting objects for credentials
 scope = ('https://www.googleapis.com/auth/spreadsheets',
@@ -43,20 +51,28 @@ display_name = 'Logbook API Harvest'
 
 #Setting the working directory
 try:
-    os.chdir('/home/katie/Documents/Logbook')
-#working directory on desktop computer
-except:
     os.chdir('/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook')
+except:
+    os.chdir('/home/mike/Programs/Logbook')
 
-#Getting credentials
-store = Storage('authorization.json')
-credential_path = os.path.join(os.getcwd(),
-                                   'sheets.googleapis.com-Logbook.json')
+working_dir = os.getcwd()
 
-flow = client.flow_from_clientsecrets(client_secret, scope)
-flow.user_agent = display_name
+credential_dir = os.path.join(working_dir, '.credentials')
 
+if not os.path.exists(credential_dir):
+    os.makedirs(credential_dir)
+
+credential_path = os.path.join(credential_dir,
+                                   'logbook-google-sheets.json')
+
+store = Storage(credential_path)
 credentials = store.get()
+
+if not credentials or credentials.invalid:
+    flow = client.flow_from_clientsecrets(client_secret, scope)
+    flow.user_agent = display_name
+    if flags:
+	credentials = tools.run_flow(flow, store, flags)
 
 
 #Pull in data from the current spreadsheet
@@ -114,48 +130,22 @@ for i in value_dict:
         continue
     to_add.append(i)
 
-#Pull in a list of file so that we can find the schedule
-drive = discovery.build('drive', 'v3', http=http)
-
-files = drive.files().list().execute()
-
-#Pull in all files, need to loop through several pages
-files_list = list()
-while True:
-    if files.get('nextPageToken', None) == None:
-        break
-    for i in files['files']:
-        files_list.append(i)
-    nextPage = dict()
-    nextPage['pageToken'] = files['nextPageToken']
-    files = drive.files().list(**nextPage).execute()
+#Pull in the csv files that are downloaded and saved to the computer
+files = os.listdir('/home/mike/Documents/Logbook/XJT_Schedules')
 
 schedules = list()
-for i in files_list:
-    if '7048196' not in i['name']:
+for i in files:
+    if '7048196' not in i:
         continue
-    fileid = (i['id'], i['name'])
-    schedules.append(fileid)
+    schedules.append('/home/mike/Documents/Logbook/XJT_Schedules' + '/' + i)
 
-#Pull in the schedule
-for i in schedules:
-    rangeName2 =  i[1] + '!A:N'
-    result2 = service.spreadsheets().values().get(
-        spreadsheetId=i[0], range=rangeName2).execute()
-    if schedules.index(i) == 0:
-        schedule = (result2.get('values', []))
-    else:
-        for j in result2.get('values', []):
-            schedule.append(j)
-
-schedule_headers = schedule[0]
+#Bring the csv file to dictionary
 schedule_dict = list()
-for i in range(1, len(schedule)):
-    j = schedule[i]
-    data = dict()
-    for l, m in zip(schedule_headers, j):
-        data[l] = m
-    schedule_dict.append(data)
+for i in schedules:
+    with open(i, 'r') as infile:
+	reader = csv.DictReader(infile)
+	for row in reader:
+	    schedule_dict.append(row)
 
 #Sequence trips - Schedule
 dates = list()
@@ -190,23 +180,25 @@ for i in value_dict:
 for i in dates:
     seq_list = list()
     for j in value_dict:
-        if (j['FROM'], j['TO']) not in seq_list:
-            seq_list.append((j['FROM'], j['TO']))
-            j['Sequence'] = 1
-            counter = 1
-        elif (j['FROM'], j['TO']) in seq_list:
-            counter = counter + 1
-            j['Sequence'] = counter
+	if j['DATE'] == i:
+		if (j['FROM'], j['TO']) not in seq_list:
+		    seq_list.append((j['FROM'], j['TO']))
+		    j['Sequence'] = 1
+		    counter = 1
+		elif (j['FROM'], j['TO']) in seq_list:
+		    counter = counter + 1
+		    j['Sequence'] = counter
 
 #Join the Information in the logbook to the schedule
 
 Total_sheet = list()
 
-for i in value_dict:
+for i in to_add:
     for j in schedule_dict:
+	dr_date = '/'.join(('0' if len(x)<2 else '')+x for x in i['DATE'].split('/'))
         if j['Origin'] == i['FROM'] \
             and j['Dest'] == i['TO'] \
-            and j['Date'] == i['DATE'] \
+            and j['Date'] == dr_date \
             and j['Sequence'] == i['Sequence']:
                 data = j
                 data['AIRCRAFT MAKE AND MODEL'] = i['AIRCRAFT MAKE AND MODEL']
