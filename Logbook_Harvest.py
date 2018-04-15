@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2018-04-15T13:59:02-05:00
 # @Last modified by:   katie
-# @Last modified time: 2018-04-15T15:21:54-05:00
+# @Last modified time: 2018-04-15T15:48:59-05:00
 
 
 
@@ -193,9 +193,10 @@ to_add = sequencer(to_add, 'DATE', 'FROM', 'TO')
 
 schedule_dict = sequencer(schedule_dict, 'Date', 'Origin', 'Dest')
 
-
 #Normalize dates so that they can be joined
 for i in to_add:
+    if i['DATE'] == '':
+        continue
     i['d'] = datetime.strptime(i['DATE'], '%m/%d/%Y')
 
 for i in schedule_dict:
@@ -207,11 +208,11 @@ Total_sheet = list()
 
 for i in to_add:
     for j in schedule_dict:
-	dr_date = '/'.join(('0' if len(x)<2 else '')+x for x in i['DATE'].split('/'))
+        dr_date = '/'.join(('0' if len(x)<2 else '')+x for x in i['DATE'].split('/'))
         if j['Origin'] == i['FROM'] \
-            and j['Dest'] == i['TO'] \
-            and j['Date'] == dr_date \
-            and j['Sequence'] == i['Sequence']:
+        and j['Dest'] == i['TO'] \
+        and j['Date'] == dr_date \
+        and j['Sequence'] == i['Sequence']:
                 data = j
                 data['AIRCRAFT MAKE AND MODEL'] = i['AIRCRAFT MAKE AND MODEL']
                 data['AIRCRAFT IDENT'] = i['AIRCRAFT IDENT']
