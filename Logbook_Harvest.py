@@ -25,6 +25,8 @@ Copyright (C) 2017  Kathryn Tanner
 from __future__ import division
 import httplib2
 import os
+import csv
+from datetime import datetime
 
 try:
     from apiclient import discovery
@@ -43,6 +45,12 @@ except ImportError:
     flags = None
 
 
+try:
+    import argparse
+    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+except ImportError:
+    flags = None
+
 #Setting objects for credentials
 scope = ('https://www.googleapis.com/auth/spreadsheets',
           'https://www.googleapis.com/auth/drive.metadata.readonly')
@@ -57,31 +65,43 @@ except:
 
 working_dir = os.getcwd()
 
-credential_dir = os.path.join(working_dir, '.credentials')
+#Getting credentials
+credential_path = os.path.join(os.getcwd(),
+                                   'authorization.json')
+store = Storage('authorization.json')
+
 
 if not os.path.exists(credential_dir):
     os.makedirs(credential_dir)
 
-credential_path = os.path.join(credential_dir,
-                                   'logbook-google-sheets.json')
+credentials = store.get()#Setting the working directory
+try:
+    os.chdir('/home/katie/Documents/Logbook')
+#working directory on desktop computer
+except:
+    os.chdir('/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook')
 
-store = Storage(credential_path)
+#Getting credentials
+credential_path = os.path.join(os.getcwd(),
+                                   'authorization.json')
+store = Storage('authorization.json')
 credentials = store.get()
 
 if not credentials or credentials.invalid:
     flow = client.flow_from_clientsecrets(client_secret, scope)
     flow.user_agent = display_name
     if flags:
-	credentials = tools.run_flow(flow, store, flags)
+        credentials = tools.run_flow(flow, store, flags)
+        print('Storing credentials to ' + credential_path)
 
-
-#Pull in data from the current spreadsheet
+#Authorize credentials
 http = credentials.authorize(httplib2.Http())
 
 discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
 service = discovery.build('sheets', 'v4', http=http,
                               discoveryServiceUrl=discoveryUrl)
+
 
 spreadsheetId = '1LNX6rDPsm8iN47LjPdK_8BJmhSvL4SqdGe79I9mvFaY'
 rangeName = 'Form Responses 1!A:P'
@@ -130,64 +150,79 @@ for i in value_dict:
         continue
     to_add.append(i)
 
-#Pull in the csv files that are downloaded and saved to the computer
-files = os.listdir('/home/mike/Documents/Logbook/XJT_Schedules')
+#Pull in all files, need to loop through several pages
+files_list = os.listdir('/home/katie/Downloads/Mike Schedule')
 
 schedules = list()
-for i in files:
+for i in files_list:
     if '7048196' not in i:
         continue
-    schedules.append('/home/mike/Documents/Logbook/XJT_Schedules' + '/' + i)
+    schedules.append('/home/katie/Downloads/Mike Schedule/' + i)
 
-#Bring the csv file to dictionary
-schedule_dict = list()
+schedule_data = list()
 for i in schedules:
-    with open(i, 'r') as infile:
-	reader = csv.DictReader(infile)
-	for row in reader:
-	    schedule_dict.append(row)
+    with open(i, 'rb') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            schedule_data.append(row)
 
-#Sequence trips - Schedule
-dates = list()
-for i in schedule_dict:
-    if i['Date'] in dates:
+schedule_headers = schedule_data[0]
+
+#Pull in the schedule
+temp_dict = list()
+for i in schedule_data:
+    if i == schedule_headers:
         continue
-    dates.append(i['Date'])
+    data = dict()
+    for j, k in zip(i, schedule_headers):
+        data[k] = j
+    temp_dict.append(data)
 
-for i in dates:
-    seq_list = list()
-    for j in schedule_dict:
-        if j['Date'] == i:
-            if (j['Origin'], j['Dest']) not in seq_list:
-                seq_list.append((j['Origin'], j['Dest']))
+#Create a hashkey that allows us to identify unique values
+for i in temp_dict:
+    i['Hashkey'] = hash(frozenset(i.items()))
+
+#Dedupe our list
+seen_before = list()
+schedule_dict = list()
+for i in temp_dict:
+    if i['Hashkey'] in seen_before:
+        continue
+    seen_before.append(i['Hashkey'])
+    schedule_dict.append(i)
+
+#Sequence trips
+def sequencer(data, datefield, Originvar, Destvar):
+    dates = list()
+    for i in data:
+        if i[datefield] in dates:
+            continue
+        dates.append(i[datefield])
+    for i in dates:
+        pair_count = dict()
+        for j in data:
+            if j[datefield] != i:
+                continue
+            pair = (j[Originvar], j[Destvar])
+            if pair_count.get(pair, '') == '':
+                pair_count[pair] = 1
                 j['Sequence'] = 1
-                counter = 1
-            elif (j['Origin'], j['Dest']) in seq_list:
-                counter = counter + 1
-                j['Sequence'] = counter
+            else:
+                pair_count[pair] += 1
+                j['Sequence'] = pair_count[pair]
+    return data
 
-#Testing the sequencer
-#for i in schedule_dict:
-#    print(i['Date'] + '\t' + i['Origin'] + '\t' + i['Dest'] + '\t' + str(i['Sequence']))
+to_add = sequencer(to_add, 'DATE', 'FROM', 'TO')
 
-#Sequence trips - Logbook
-dates = list()
-for i in value_dict:
-    if i['DATE'] in dates:
-        continue
-    dates.append(i['DATE'])
+schedule_dict = sequencer(schedule_dict, 'Date', 'Origin', 'Dest')
 
-for i in dates:
-    seq_list = list()
-    for j in value_dict:
-	if j['DATE'] == i:
-		if (j['FROM'], j['TO']) not in seq_list:
-		    seq_list.append((j['FROM'], j['TO']))
-		    j['Sequence'] = 1
-		    counter = 1
-		elif (j['FROM'], j['TO']) in seq_list:
-		    counter = counter + 1
-		    j['Sequence'] = counter
+
+#Normalize dates so that they can be joined
+for i in to_add:
+    i['d'] = datetime.strptime(i['DATE'], '%m/%d/%Y')
+
+for i in schedule_dict:
+    i['d'] = datetime.strptime(i['Date'], '%m/%d/%Y')
 
 #Join the Information in the logbook to the schedule
 
@@ -224,8 +259,9 @@ for i in to_add:
                 data['SECOND IN COMMAND'] = j['Block']
                 Total_sheet.append(data)
 
-#Append to the master
+#Append to the master and join to the master
 for i in Total_sheet:
+    del i['d']
     value_dict_master.append(i)
 
 #Look for values that were not appended
