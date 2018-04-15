@@ -1,9 +1,16 @@
+# @Author: katie
+# @Date:   2017-07-09T19:41:52-05:00
+# @Last modified by:   katie
+# @Last modified time: 2018-04-15T16:33:59-05:00
+
+
+
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
 Create the Logbook Pages
 Created on Sun Jun 11 14:27:07 2017
-Written in Python2
+Written in Python3
 Copyright (C) 2017  Kathryn Tanner
 
     This program is free software: you can redistribute it and/or modify
@@ -22,7 +29,6 @@ Copyright (C) 2017  Kathryn Tanner
 
 #Import our packages
 
-from __future__ import division
 import httplib2
 import os
 
@@ -35,12 +41,6 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
-
 import numpy as np
 from datetime import datetime
 
@@ -48,13 +48,6 @@ from datetime import datetime
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Logbook API Print'
-
-#Setting the working directory
-try:
-    os.chdir('/home/katie/Documents/Logbook')
-#working directory on desktop computer
-except:
-    os.chdir('/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook')
 
 #Getting credentials
 credential_path = os.path.join(os.getcwd(),
@@ -168,7 +161,7 @@ def page_divide(header_list, input_dict):
     output_dict = list()
     for i in input_dict:
         dict1 = dict()
-        for key, value in i.iteritems():
+        for key, value in iter(i.items()):
             if key in header_list:
                 dict1[key] = value
             else:
@@ -264,7 +257,7 @@ def page1_write(input_range, input_data, input_headers, prev_totals):
         writer.write('<tr>')
         for k in input_headers:
             l = '<td style="height:' + str(j) + 'px;">' + i.get(k, ' ') + '</td>'
-            writer.write(l.encode('utf-8'))
+            writer.write(l)
             if k not in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
                          'FROM', 'TO', 'APPROACH', 'REMARKS AND ENDORSEMENTS']:
                 try:
@@ -311,7 +304,7 @@ def page2_write(input_range, input_data, input_headers, prev_totals):
         writer.write('<tr>')
         for k in input_headers:
             l = '<td style="height:' + str(j) + 'px;">' + i.get(k, ' ') + '</td>'
-            writer.write(l.encode('utf-8'))
+            writer.write(l)
             if k not in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
                          'FROM', 'TO', 'APPROACH', 'REMARKS AND ENDORSEMENTS']:
                 try:
@@ -353,7 +346,6 @@ page2_list = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIG
               'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND',
               'DUAL RECEIVED', 'AS FLIGHT INSTRUCTOR', 'REMARKS AND ENDORSEMENTS']
 
-
 page1_dict = page_divide(page1_list, value_dict_master)
 page2_dict = page_divide(page2_list, value_dict_master)
 
@@ -366,7 +358,7 @@ index_list = page_chunk(page2_dict)
 prev1_totals = dict()
 prev2_totals = dict()
 ##Writing the html file
-with open('Logbook_Print.html', 'wb') as writer:
+with open('Logbook_Print.html', 'w') as writer:
     writer.write('<html>')
     writer.write('<head>')
     writer.write('<link rel="stylesheet" href="style.css">')
