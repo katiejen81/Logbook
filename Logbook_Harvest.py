@@ -44,37 +44,16 @@ try:
 except ImportError:
     flags = None
 
-
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
-
 #Setting objects for credentials
 scope = ('https://www.googleapis.com/auth/spreadsheets',
           'https://www.googleapis.com/auth/drive.metadata.readonly')
 client_secret = 'client_secret.json'
 display_name = 'Logbook API Harvest'
 
+# Ask for a working directory
+wd = raw_input('Please enter a full path to the directory containing the \n')
+
 #Setting the working directory
-try:
-    os.chdir('/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook')
-except:
-    os.chdir('/home/mike/Programs/Logbook')
-
-working_dir = os.getcwd()
-
-#Getting credentials
-credential_path = os.path.join(os.getcwd(),
-                                   'authorization.json')
-store = Storage('authorization.json')
-
-
-if not os.path.exists(credential_dir):
-    os.makedirs(credential_dir)
-
-credentials = store.get()#Setting the working directory
 try:
     os.chdir('/home/katie/Documents/Logbook')
 #working directory on desktop computer
