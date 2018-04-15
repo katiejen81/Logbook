@@ -1,9 +1,16 @@
+# @Author: katie
+# @Date:   2018-04-15T13:59:02-05:00
+# @Last modified by:   katie
+# @Last modified time: 2018-04-15T15:21:54-05:00
+
+
+
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
 Google Logbook Harvester
 Created on Wed May 31 21:41:35 2017
-Written in Python2
+Written in Python3
 Copyright (C) 2017  Kathryn Tanner
 
     This program is free software: you can redistribute it and/or modify
@@ -21,8 +28,6 @@ Copyright (C) 2017  Kathryn Tanner
 """
 
 #Import our packages
-
-from __future__ import division
 import httplib2
 import os
 import csv
@@ -36,13 +41,6 @@ except:
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
-import csv
-
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
 
 #Setting objects for credentials
 scope = ('https://www.googleapis.com/auth/spreadsheets',
@@ -50,15 +48,7 @@ scope = ('https://www.googleapis.com/auth/spreadsheets',
 client_secret = 'client_secret.json'
 display_name = 'Logbook API Harvest'
 
-# Ask for a working directory
-wd = raw_input('Please enter a full path to the directory containing the \n')
-
-#Setting the working directory
-try:
-    os.chdir('/home/katie/Documents/Logbook')
-#working directory on desktop computer
-except:
-    os.chdir('/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook')
+# Going to set up in the shell script the location for the program
 
 #Getting credentials
 credential_path = os.path.join(os.getcwd(),
@@ -129,18 +119,26 @@ for i in value_dict:
         continue
     to_add.append(i)
 
+# Ask the user where the files that contain the company information are located
+file_path = input('Please enter the full path where the downloaded schedule files are located\n ' + \
+'hit enter to look for files in /home/katie/Downloads/Mike Schedule: ')
+
+# Create a default file location
+if file_path == '':
+    file_path = '/home/katie/Downloads/Mike Schedule'
+
 #Pull in all files, need to loop through several pages
-files_list = os.listdir('/home/katie/Downloads/Mike Schedule')
+files_list = os.listdir(file_path)
 
 schedules = list()
 for i in files_list:
     if '7048196' not in i:
         continue
-    schedules.append('/home/katie/Downloads/Mike Schedule/' + i)
+    schedules.append(file_path + '/' + i)
 
 schedule_data = list()
 for i in schedules:
-    with open(i, 'rb') as csvfile:
+    with open(i, 'r') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             schedule_data.append(row)
