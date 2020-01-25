@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2018-04-15T13:59:02-05:00
 # @Last modified by:   katie
-# @Last modified time: 2018-04-15T15:48:59-05:00
+# @Last modified time: 2020-01-25T16:01:40-06:00
 
 
 
@@ -59,9 +59,8 @@ credentials = store.get()
 if not credentials or credentials.invalid:
     flow = client.flow_from_clientsecrets(client_secret, scope)
     flow.user_agent = display_name
-    if flags:
-        credentials = tools.run_flow(flow, store, flags)
-        print('Storing credentials to ' + credential_path)
+    credentials = tools.run_flow(flow, store)
+    print('Storing credentials to ' + credential_path)
 
 #Authorize credentials
 http = credentials.authorize(httplib2.Http())
@@ -233,8 +232,14 @@ for i in to_add:
                 data['Timestamp'] = i['Timestamp']
                 data['TOTAL DURATION OF FLIGHT'] = j['Block']
                 data['AIRPLANE MULTI-ENGINE LAND'] = j['Block']
-                data['PILOT IN COMMAND'] = 0
-                data['SECOND IN COMMAND'] = j['Block']
+                if (['PILOT IN COMMAND'] == 0) | (['PILOT IN COMMAND'] == None):
+                    data['PILOT IN COMMAND'] = 0
+                else:
+                    data['CROSS COUNTRY'] = j['Block']
+                if (['SECOND IN COMMAND'] == 0) | (['SECOND IN COMMAND'] == None):
+                    data['SECOND IN COMMAND'] = 0
+                else:
+                    data['SECOND IN COMMAND'] = j['Block']
                 Total_sheet.append(data)
 
 #Append to the master and join to the master
