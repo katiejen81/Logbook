@@ -7,11 +7,11 @@
 
 #!/bin/bash
 
-cd '/media/katie/322f9f54-fb6e-4d56-b45c-9e2850394428/Katie Programs/Logbook'
+cd '/home/mike/apps/Logbook'
 
-source activate logbook
+conda activate logbook
 
 python Logbook_Harvest.py
 python Logbook_Print.py
 
-source deactivate logbook
+conda deactivate
