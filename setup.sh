@@ -17,13 +17,13 @@ sh Miniconda3-latest-Linux-x86_64.sh
 
 # Create a new miniconda environment that contains the packages that we want
 conda create -n logbook python=3.6
-source activate logbook
+conda activate logbook
 
 pip install --upgrade google-api-python-client
 pip install ipykernel
 
 pip install argparse
-pip install numpyS
+pip install numpy
 
 # Delete the download file
 rm Miniconda3-latest-Linux-x86_64.sh

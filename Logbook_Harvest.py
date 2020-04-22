@@ -120,11 +120,11 @@ for i in value_dict:
 
 # Ask the user where the files that contain the company information are located
 file_path = input('Please enter the full path where the downloaded schedule files are located\n ' + \
-'hit enter to look for files in /home/katie/Downloads/Mike Schedule: ')
+'hit enter to look for files in /home/mike/Downloads: ')
 
 # Create a default file location
 if file_path == '':
-    file_path = '/home/katie/Downloads/Mike Schedule'
+    file_path = '/home/mike/Downloads'
 
 #Pull in all files, need to loop through several pages
 files_list = os.listdir(file_path)
@@ -142,7 +142,11 @@ for i in schedules:
         for row in reader:
             schedule_data.append(row)
 
-schedule_headers = schedule_data[0]
+# Get the schedule_headers - if exists
+if len(schedule_data) == 0:
+    pass
+else:
+    schedule_headers = schedule_data[0]
 
 #Pull in the schedule
 temp_dict = list()
