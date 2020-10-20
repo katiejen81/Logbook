@@ -239,7 +239,7 @@ for i in to_add:
                 if (['PILOT IN COMMAND'] == 0) | (['PILOT IN COMMAND'] == None):
                     data['PILOT IN COMMAND'] = 0
                 else:
-                    data['CROSS COUNTRY'] = j['Block']
+                    data['PILOT IN COMMAND'] = j['Block']
                 if (['SECOND IN COMMAND'] == 0) | (['SECOND IN COMMAND'] == None):
                     data['SECOND IN COMMAND'] = 0
                 else:
