@@ -24,6 +24,7 @@ pip install ipykernel
 
 pip install argparse
 pip install numpy
+pip install httplib2
 
 # Delete the download file
 rm Miniconda3-latest-Linux-x86_64.sh
