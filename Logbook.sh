@@ -5,10 +5,10 @@
 # @Last modified by:   katie
 # @Last modified time: 2018-04-15T17:06:29-05:00
 
+source activate logbook
+
 export PATH="/home/mike/miniconda3/bin:$PATH"
 cd '/home/mike/apps/Logbook'
-
-source activate logbook
 
 python Logbook_Harvest.py
 python Logbook_Print.py
