@@ -238,12 +238,10 @@ for i in to_add:
                 data['AIRPLANE MULTI-ENGINE LAND'] = j['Block']
                 if (['PILOT IN COMMAND'] == 0) | (['PILOT IN COMMAND'] == None):
                     data['PILOT IN COMMAND'] = 0
-                else:
-                    data['PILOT IN COMMAND'] = j['Block']
-                if (['SECOND IN COMMAND'] == 0) | (['SECOND IN COMMAND'] == None):
-                    data['SECOND IN COMMAND'] = 0
-                else:
                     data['SECOND IN COMMAND'] = j['Block']
+                else:
+                    data['SECOND IN COMMAND'] = 0
+                    data['PILOT IN COMMAND'] = j['Block']
                 Total_sheet.append(data)
 
 #Append to the master and join to the master
