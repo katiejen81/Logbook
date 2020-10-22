@@ -43,6 +43,7 @@ from oauth2client.file import Storage
 
 import numpy as np
 from datetime import datetime
+import pandas as pd
 
 #Setting objects for credentials
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
@@ -99,16 +100,14 @@ def p1header_row(values, year):
     writer.write('<col width="70">')
     writer.write('<col width="75">')
     writer.write('<col width="105">')
-    writer.write('<col width="60">')
-    writer.write('<col width="60">')
-    writer.write('<col class="gray" width="85">')
+    writer.write('<col width="105">')
+    writer.write('<col width="105">')
+    writer.write('<col class="gray" width="95">')
     writer.write('<col width="95">')
-    writer.write('<col class= "gray" width="85">')
+    writer.write('<col class= "gray" width="95">')
     writer.write('<col width="95">')
-    writer.write('<col class="gray" width="80">')
+    writer.write('<col class="gray" width="50">')
     writer.write('<col width="50">')
-    writer.write('<col class="gray" width="40">')
-    writer.write('<col width="40">')
     writer.write('<tr>')
     writer.write('<th colspan = "3">YEAR ' \
                  + year \
