@@ -81,7 +81,7 @@ values_master = result.get('values', [])
 headers_master = values_master[0]
 
 #Filter for only what I need and convert to dictionary
-values_list = headers_master[0:17]
+values_list = headers_master[0:21]
 
 value_dict_master = list()
 
