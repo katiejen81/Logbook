@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-22T19:42:30-05:00
+# @Last modified time: 2020-10-22T21:34:41-05:00
 
 
 
@@ -34,6 +34,7 @@ import pandas as pd
 
 from core.Drive_Data_Fetch import googleSpreadsheetFetch
 
+# Get data from drive
 gDrive_init = googleSpreadsheetFetch(
     scopes = 'https://www.googleapis.com/auth/spreadsheets.readonly',
     client_secret_file = 'client_secret.json',
@@ -44,161 +45,34 @@ gDrive_init = googleSpreadsheetFetch(
     dictConvert = True
 )
 
-gSheetData = gDrive_init.getGoogleSpreadsheetData()
+# Define Default Values from the Google Spreadsheet
+na_replace = {
+    'AIRCRAFT IDENT':'N/A',
+    'FROM':'N/A',
+    'TO':'N/A',
+    'FROM':'N/A',
+    'TOTAL DURATION OF FLIGHT':0.0,
+    'AIRPLANE SINGLE-ENGINE LAND':0.0,
+    'AIRPLANE SINGLE-ENGINE SEA':0.0,
+    'AIRPLANE MULTI-ENGINE LAND':0.0,
+    'LANDINGS DAY':0,
+    'LANDINGS NIGHT':0,
+    'NIGHT':0.0,
+    'ACTUAL INSTRUMENT':0.0,
+    'SIMULATED INSTRUMENT (HOOD)':0.0,
+    'FLIGHT SIMULATOR':0.0,
+    'CROSS COUNTRY':0.0,
+    'SOLO':0.0,
+    'PILOT IN COMMAND':0.0,
+    'SECOND IN COMMAND':0.0,
+    'DUAL RECEIVED':0.0,
+    'AS FLIGHT INSTRUCTOR':0.0,
+    'REMARKS AND ENDORSEMENTS':'No Remarks'
+}
+
+gSheetData = gDrive_init.getGoogleSpreadsheetData(default_values=na_replace)
 data = pd.DataFrame(gSheetData)
 
-
-#Defining the functions that print the table
-
-##Defining the header row and the fixed widths of the columns - page even
-def p1header_row(values, year):
-    writer.write('<table class=page1>')
-    writer.write('<col width="70">')
-    writer.write('<col width="75">')
-    writer.write('<col width="105">')
-    writer.write('<col width="105">')
-    writer.write('<col width="105">')
-    writer.write('<col class="gray" width="95">')
-    writer.write('<col width="95">')
-    writer.write('<col class= "gray" width="95">')
-    writer.write('<col width="95">')
-    writer.write('<col class="gray" width="50">')
-    writer.write('<col width="50">')
-    writer.write('<tr>')
-    writer.write('<th colspan = "3">YEAR ' \
-                 + year \
-                 + '</th>')
-    writer.write('<th colspan = "2">ROUTE OF FLIGHT</th>')
-    writer.write('<th rowspan = "2">TOTAL DURATION OF FLIGHT</th>')
-    writer.write('<th colspan = "5">AIRCRAFT CATEGORY AND CLASS</th>')
-    writer.write('<th colspan = "2">LANDINGS</th>')
-    writer.write('</tr><tr>')
-    for i in values:
-        if i == 'TOTAL DURATION OF FLIGHT':
-            continue
-        elif 'LANDINGS' in i:
-            i = i.split(' ')[1]
-        j = '<th class=secondrow>' + i + '</th>'
-        writer.write(j)
-    writer.write('</tr>')
-
-##Defining the header row and fixed widths of the columns - page odd
-def p2header_row(values):
-    writer.write('<table class=page2>')
-    writer.write('<col class="gray" width="60">')
-    writer.write('<col width="70">')
-    writer.write('<col class="gray" width="70">')
-    writer.write('<col width="70">')
-    writer.write('<col class="gray" width="65">')
-    writer.write('<col width="50">')
-    writer.write('<col class="gray" width="75">')
-    writer.write('<col width="75">')
-    writer.write('<col class="gray" width="65">')
-    writer.write('<col width="75">')
-    writer.write('<col width="265">')
-    writer.write('<tr>')
-    writer.write('<th colspan = "3">CONDITIONS OF FLIGHT</th>')
-    writer.write('<th rowspan = "2">FLIGHT SIMULATOR</th>')
-    writer.write('<th colspan = "6">TYPE OF PILOTING TIME</th>')
-    writer.write('<th rowspan = "2">REMARKS AND ENDORSEMENTS</th>')
-    writer.write('</tr><tr>')
-    for i in values:
-        if i == 'FLIGHT SIMULATOR':
-            continue
-        elif i == 'REMARKS AND ENDORSEMENTS':
-            continue
-        j = '<th class=secondrow>' + i + '</th>'
-        writer.write(j)
-    writer.write('</tr>')
-
-##Function that develops the page1 and page2 dictionaries
-def page_divide(header_list, input_dict):
-    output_dict = list()
-    for i in input_dict:
-        dict1 = dict()
-        for key, value in iter(i.items()):
-            if key in header_list:
-                dict1[key] = value
-            else:
-                continue
-        output_dict.append(dict1)
-    return output_dict
-
-##Function that dynamically defines the pages - page 2
-def page_chunk(input_dict):
-    length_list = [60, 70, 70, 70, 65, 50, 75, 75, 65, 75, 240]
-    record_rows = 0
-    temp_list = list()
-    temp_height_list = list()
-    height_list = list()
-    value_list = list()
-    row_num = 0
-    for i in input_dict:
-        index = row_num
-        temp_list.append(index)
-        col_rows = list()
-        for j, k in zip(page2_list, length_list):
-            length = len(i.get(j, ''))
-            length_px = length * 7
-            if np.ceil(length_px/k) == 0:
-                rows = 1
-            else:
-                rows = int(np.ceil(length_px/k))
-            col_rows.append(rows)
-        record_rows = record_rows + max(col_rows)
-        temp_height_list.append(max(col_rows) * 17)
-        row_num = row_num + 1
-        if record_rows > 37:
-            start = temp_list[len(temp_list) - 1]
-            del temp_height_list[len(temp_height_list) - 1]
-            del temp_height_list[len(temp_height_list) - 1]
-            del temp_list[len(temp_list) - 1]
-            value_list.append(temp_list)
-            height_list.append(temp_height_list)
-            temp_list = [start]
-            record_rows = max(col_rows)
-            temp_height_list = [record_rows * 17]
-        else:
-            continue
-    value_list.append(temp_list)
-    height_list.append(temp_height_list)
-    last = height_list[len(height_list) - 1]
-    del height_list[len(height_list) - 1]
-    for m in height_list:
-        line = True
-        while line == True:
-            if sum(m) == 612:
-                line = False
-            elif sum(m) < 612:
-                for n in range(len(m)):
-                    m[n] = m[n] + 1
-                    if sum(m) == 612:
-                        line = False
-                    else:
-                        continue
-    height_list.append(last)
-    index_list = list()
-    for i, j in zip(value_list, height_list):
-        val = (min(i), max(i), j)
-        index_list.append(val)
-    return index_list
-
-##Function that writes out the year for the header of the table
-def year_compute(input_range, input_dict):
-    start = input_range[0]
-    end = input_range[1]
-    table = input_dict[start:end]
-    temp_list = list()
-    for j in table:
-        date = datetime.strptime(j['DATE'], '%M/%d/%Y').date().strftime('%Y')
-        if date in temp_list:
-            continue
-        temp_list.append(date)
-    if len(temp_list) == 1:
-        year = temp_list[0]
-    else:
-        year = '/'.join(temp_list)
-    return year
 
 ##Function to write out the table rows and cells past the header row - Page 1
 def page1_write(input_range, input_data, input_headers, prev_totals):
