@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2018-04-15T16:33:59-05:00
+# @Last modified time: 2020-10-22T19:42:30-05:00
 
 
 
@@ -28,69 +28,25 @@ Copyright (C) 2017  Kathryn Tanner
 """
 
 #Import our packages
-
-import httplib2
-import os
-
-try:
-    from apiclient import discovery
-except:
-    from googleapiclient import discovery
-
-from oauth2client import client
-from oauth2client import tools
-from oauth2client.file import Storage
-
 import numpy as np
 from datetime import datetime
 import pandas as pd
 
-#Setting objects for credentials
-SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
-CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Logbook API Print'
+from core.Drive_Data_Fetch import googleSpreadsheetFetch
 
-#Getting credentials
-credential_path = os.path.join(os.getcwd(),
-                                   'authorization.json')
-store = Storage('authorization.json')
-credentials = store.get()
+gDrive_init = googleSpreadsheetFetch(
+    scopes = 'https://www.googleapis.com/auth/spreadsheets.readonly',
+    client_secret_file = 'client_secret.json',
+    application_name = 'Logbook API Print',
+    authorization_file = 'authorization.json',
+    spreadsheetId = '15FeoThcHzYceUEoIR6uegF4HFH-jJKzW6paitZ9dipM',
+    rangeName = 'XJT_Logbook_CLEAN!B:AE',
+    dictConvert = True
+)
 
-if not credentials or credentials.invalid:
-    flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-    flow.user_agent = APPLICATION_NAME
-    if flags:
-        credentials = tools.run_flow(flow, store, flags)
-        print('Storing credentials to ' + credential_path)
+gSheetData = gDrive_init.getGoogleSpreadsheetData()
+data = pd.DataFrame(gSheetData)
 
-#Authorize credentials
-http = credentials.authorize(httplib2.Http())
-
-discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
-                    'version=v4')
-service = discovery.build('sheets', 'v4', http=http,
-                              discoveryServiceUrl=discoveryUrl)
-
-#Pull in data from the master spreadsheet
-spreadsheetId = '15FeoThcHzYceUEoIR6uegF4HFH-jJKzW6paitZ9dipM'
-rangeName = 'XJT_Logbook_CLEAN!B:AE'
-result = service.spreadsheets().values().get(
-    spreadsheetId=spreadsheetId, range=rangeName).execute()
-values_master = result.get('values', [])
-
-headers_master = values_master[0]
-
-#Filter for only what I need and convert to dictionary
-values_list = headers_master[0:21]
-
-value_dict_master = list()
-
-for i in range(1, len(values_master)):
-    j = values_master[i]
-    data = dict()
-    for l, m in zip(values_list, j):
-        data[l] = m
-    value_dict_master.append(data)
 
 #Defining the functions that print the table
 
@@ -351,11 +307,14 @@ page2_dict = page_divide(page2_list, value_dict_master)
 ##Chunking the pages and defining the records for breaks
 index_list = page_chunk(page2_dict)
 
-
 #Using the functions to write out to an html table
 ##Starting dictionary
 prev1_totals = dict()
 prev2_totals = dict()
+
+year = year_compute(index_list[0], page1_dict)
+prev = page1_write(index_list[0], page1_dict, page1_list, prev1_totals)
+
 ##Writing the html file
 with open('Logbook_Print.html', 'w') as writer:
     writer.write('<html>')
