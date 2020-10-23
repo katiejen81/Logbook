@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2020-10-22T19:20:45-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-22T19:39:41-05:00
+# @Last modified time: 2020-10-22T21:30:28-05:00
 
 
 
@@ -33,7 +33,7 @@ class googleSpreadsheetFetch(googleDriveAuthenticate):
 
         self.gDriveAccess = self.googleDriveConnect()
 
-    def getGoogleSpreadsheetData(self):
+    def getGoogleSpreadsheetData(self, default_values={}):
         result = self.gDriveAccess.spreadsheets().values().get(
             spreadsheetId=self.spreadsheetId, range=self.rangeName).execute()
 
@@ -52,5 +52,16 @@ class googleSpreadsheetFetch(googleDriveAuthenticate):
                 for l, m in zip(values_list, j):
                     data[l] = m
                 value_dict_master.append(data)
+
+            # Clean up and place a default value if it does not exist
+            for i in value_dict_master:
+                for repl_val in default_values.items():
+                    i[repl_val[0]] = i.get(repl_val[0], repl_val[1])
+                    if i[repl_val[0]] == '':
+                        i[repl_val[0]] = repl_val[1]
+                    elif i[repl_val[0]] == None:
+                        i[repl_val[0]] = repl_val[1]
+                    else:
+                        i[repl_val[0]] = i[repl_val[0]]
 
             return value_dict_master
