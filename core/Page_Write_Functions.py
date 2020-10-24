@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2020-10-22T19:46:50-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T11:08:06-05:00
+# @Last modified time: 2020-10-24T11:49:53-05:00
 
 import numpy as np
 from datetime import datetime
@@ -138,9 +138,9 @@ class pageWriteFunctions(object):
             row_num = row_num + 1
             if record_rows > 37:
                 start = temp_list[len(temp_list) - 1]
-                del temp_height_list[len(temp_height_list) - 1]
-                del temp_height_list[len(temp_height_list) - 1]
-                del temp_list[len(temp_list) - 1]
+                # del temp_height_list[len(temp_height_list) - 1]
+                # del temp_height_list[len(temp_height_list) - 1]
+                # del temp_list[len(temp_list) - 1]
                 value_list.append(temp_list)
                 height_list.append(temp_height_list)
                 temp_list = [start]
