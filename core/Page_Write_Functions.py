@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2020-10-22T19:46:50-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T16:06:30-05:00
+# @Last modified time: 2020-10-24T16:46:34-05:00
 
 import numpy as np
 from datetime import datetime
@@ -27,6 +27,15 @@ class pageWriteFunctions(object):
         else:
             year = '/'.join(temp_list)
         return year
+
+    ## Function that defines when the most recent and latest record is
+    @staticmethod
+    def logbook_dates(date_series):
+        dates = date_series.apply(lambda x: datetime.strptime(x, '%m/%d/%Y').date())
+        beg_date = dates.min().strftime('%m/%d/%Y')
+        end_date = dates.max().strftime('%m/%d/%Y')
+
+        return (beg_date, end_date)
 
     ##Defining the header row and the fixed widths of the columns - page even
 
