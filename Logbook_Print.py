@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T11:50:28-05:00
+# @Last modified time: 2020-10-24T16:23:35-05:00
 
 
 
@@ -36,13 +36,14 @@ from core.Page_Write_Functions import pageWriteFunctions
 
 # Get data from drive
 gDrive_init = googleSpreadsheetFetch(
-    scopes = 'https://www.googleapis.com/auth/spreadsheets.readonly',
+    scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly'],
     client_secret_file = 'client_secret.json',
     authorization_file = 'token.pickle',
     spreadsheetId = '15FeoThcHzYceUEoIR6uegF4HFH-jJKzW6paitZ9dipM',
     rangeName = 'XJT_Logbook_CLEAN!B:AE',
     dictConvert = True
 )
+
 
 # Define Default Values from the Google Spreadsheet
 na_replace = {
@@ -97,79 +98,8 @@ for key, value in format_maps.items():
     data_formatted[key] = pd.to_numeric(data_formatted[key], downcast="float")
     data_formatted[key] = data_formatted[key].apply(value.format)
 
-data_dict = data_formatted.to_dict(orient='records)
+data_dict = data_formatted.to_dict(orient='records')
 
-import numpy as np
-def page_chunk(input_dict, page1_list=None, page2_list=None):
-    total_list = page1_list + page2_list
-    page1_index = (0, len(page1_list))
-    page2_index = (len(page1_list)+1, len(total_list))
-
-    length_list = [
-        70, 75, 115, 115, 105, 95, 95, 95, 95, 40, 40,
-        60, 70, 70, 70, 65, 50, 75, 75, 65, 75, 265
-    ]
-    record_rows = 0
-    temp_list = list()
-    temp_height_list = list()
-    height_list = list()
-    value_list = list()
-    row_num = 0
-    for i in input_dict:
-        index = row_num
-        temp_list.append(index)
-        col_rows = list()
-        for j, k in zip(total_list, length_list):
-            length = len(str(i.get(j, '')))
-            length_px = length * 7
-            if np.ceil(length_px/k) == 0:
-                rows = 1
-            else:
-                rows = int(np.ceil(length_px/k))
-            col_rows.append(rows)
-        record_rows = record_rows + max(col_rows)
-        temp_height_list.append(max(col_rows) * 17)
-        row_num = row_num + 1
-        if record_rows > 37:
-            start = temp_list[len(temp_list) - 1]
-            # del temp_height_list[len(temp_height_list) - 1]
-            # del temp_height_list[len(temp_height_list) - 1]
-            # del temp_list[len(temp_list) - 1]
-            value_list.append(temp_list)
-            height_list.append(temp_height_list)
-            temp_list = [start]
-            record_rows = max(col_rows)
-            temp_height_list = [record_rows * 17]
-        else:
-            continue
-    value_list.append(temp_list)
-    height_list.append(temp_height_list)
-    last = height_list[len(height_list) - 1]
-    del height_list[len(height_list) - 1]
-    for m in height_list:
-        line = True
-        while line == True:
-            if sum(m) == 612:
-                line = False
-            elif sum(m) < 612:
-                for n in range(len(m)):
-                    m[n] = m[n] + 1
-                    if sum(m) == 612:
-                        line = False
-                    else:
-                        continue
-    height_list.append(last)
-    index_list = list()
-    for i, j in zip(value_list, height_list):
-        val = {
-            "record_start":min(i),
-            "record_end":max(i),
-            "page_lengths":j
-        }
-        index_list.append(val)
-    return index_list
-
-page_chunk(gSheetData, page1_list=page1_headers, page2_list=page2_headers)
 ##Writing the html file
 with open('Logbook_Print.html', 'w') as writer:
     # Initialize page write functions
@@ -186,7 +116,7 @@ with open('Logbook_Print.html', 'w') as writer:
                   'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND',
                   'DUAL RECEIVED', 'AS FLIGHT INSTRUCTOR', 'REMARKS AND ENDORSEMENTS']
 
-    index_list = pw_init.page_chunk(gSheetData, page1_list=page1_headers, page2_list=page2_headers)
+    index_list = pw_init.page_chunk(data_dict, page1_list=page1_headers, page2_list=page2_headers)
 
     #Preparing the data for write to the html table
     page1_dict = pw_init.page_divide(page1_headers, data_dict)
@@ -209,11 +139,11 @@ with open('Logbook_Print.html', 'w') as writer:
     for i in index_list:
         # Set up the data inputs needed
         start = i['record_start']
-        end = i['record_end']+1
+        end = i['record_end']
         row_heights = i['page_lengths']
         cut_data = data.loc[start:end]
-        cut_dict1 = page1_dict[start:end]
-        cut_dict2 = page2_dict[start:end]
+        cut_dict1 = page1_dict[start:end+1]
+        cut_dict2 = page2_dict[start:end+1]
         year = pw_init.year_compute(cut_dict1)
 
         # Write the page
