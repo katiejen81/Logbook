@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2020-10-22T19:46:50-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T08:22:32-05:00
+# @Last modified time: 2020-10-24T09:35:59-05:00
 
 import numpy as np
 from datetime import datetime
@@ -30,7 +30,7 @@ class pageWriteFunctions(object):
 
     ##Defining the header row and the fixed widths of the columns - page even
 
-    def p1header_row(values, year):
+    def p1header_row(self, values, year):
         self.writer.write('<table class=page1>')
         self.writer.write('<col width="70">')
         self.writer.write('<col width="75">')
@@ -62,7 +62,7 @@ class pageWriteFunctions(object):
         self.writer.write('</tr>')
 
     ##Defining the header row and fixed widths of the columns - page odd
-    def p2header_row(values):
+    def p2header_row(self, values):
         self.writer.write('<table class=page2>')
         self.writer.write('<col class="gray" width="60">')
         self.writer.write('<col width="70">')
