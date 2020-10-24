@@ -61,6 +61,8 @@ class googleSpreadsheetFetch(googleDriveAuthenticate):
                         i[repl_val[0]] = repl_val[1]
                     elif i[repl_val[0]] == None:
                         i[repl_val[0]] = repl_val[1]
+                    elif i[repl_val[0]] == '\n':
+                        i[repl_val[0]] = repl_val[1]
                     else:
                         i[repl_val[0]] = i[repl_val[0]]
 
