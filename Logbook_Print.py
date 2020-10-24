@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T09:32:29-05:00
+# @Last modified time: 2020-10-24T09:36:10-05:00
 
 
 
@@ -99,17 +99,6 @@ for key, value in format_maps.items():
 
 data_dict = data_formatted.to_dict(orient='records')
 
-pw_init = pageWriteFunctions()
-page1_headers = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
-              'FROM', 'TO', 'TOTAL DURATION OF FLIGHT', 'AIRPLANE SINGLE-ENGINE LAND',
-              'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND',
-              'LANDINGS DAY', 'LANDINGS NIGHT']
-
-page2_headers = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIGHT SIMULATOR',
-              'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND',
-              'DUAL RECEIVED', 'AS FLIGHT INSTRUCTOR', 'REMARKS AND ENDORSEMENTS']
-index_list = pw_init.page_chunk(gSheetData, page1_list=page1_headers, page2_list=page2_headers)
-
 ##Writing the html file
 with open('Logbook_Print.html', 'w') as writer:
     # Initialize page write functions
@@ -158,10 +147,10 @@ with open('Logbook_Print.html', 'w') as writer:
         year = pw_init.year_compute(cut_dict1)
 
         # Write the page
-        p1header_row(page1_headers, year)
+        pw_init.p1header_row(page1_headers, year)
         prev = pw_init.page_write(row_height_page1, cut_data, page1_dict, page1_headers, prev1_totals, page=1)
         prev1_totals = prev
-        p2header_row(page2_headers)
+        pw_init.p2header_row(page2_headers)
         prev = pw_init.page_write(row_height_page2, cut_data, page2_dict, page2_headers, prev2_totals, page=2)
         prev2_totals = prev
     writer.write('</body>')
