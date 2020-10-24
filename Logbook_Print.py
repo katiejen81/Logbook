@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-22T21:34:41-05:00
+# @Last modified time: 2020-10-24T08:11:43-05:00
 
 
 
@@ -28,7 +28,7 @@ Copyright (C) 2017  Kathryn Tanner
 """
 
 #Import our packages
-from datetime import datetime
+
 import pandas as pd
 
 from core.Drive_Data_Fetch import googleSpreadsheetFetch
@@ -100,40 +100,33 @@ for key, value in format_maps.items():
 
 data_dict = data_formatted.to_dict(orient='records')
 
-# Initialize page write functions
-pw_init = pageWriteFunctions()
-
-# Determine the chunking
-index_list = pw_init.page_chunk(gSheetData, page1_list=page1_list, page2_list=page2_list)
-
-
-#Preparing the data for write to the html table
-##Dividing the dictionaries to pages
-page1_list = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
-              'FROM', 'TO', 'TOTAL DURATION OF FLIGHT', 'AIRPLANE SINGLE-ENGINE LAND',
-              'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND',
-              'LANDINGS DAY', 'LANDINGS NIGHT']
-
-page2_list = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIGHT SIMULATOR',
-              'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND',
-              'DUAL RECEIVED', 'AS FLIGHT INSTRUCTOR', 'REMARKS AND ENDORSEMENTS']
-
-page1_dict = page_divide(page1_list, value_dict_master)
-page2_dict = page_divide(page2_list, value_dict_master)
-
-##Chunking the pages and defining the records for breaks
-index_list = page_chunk(page2_dict)
-
-#Using the functions to write out to an html table
-##Starting dictionary
-prev1_totals = dict()
-prev2_totals = dict()
-
-year = year_compute(index_list[0], page1_dict)
-prev = page1_write(index_list[0], page1_dict, page1_list, prev1_totals)
 
 ##Writing the html file
 with open('Logbook_Print.html', 'w') as writer:
+    # Initialize page write functions
+    pw_init = pageWriteFunctions(writer=writer)
+
+    # Determine the chunking
+    index_list = pw_init.page_chunk(gSheetData, page1_list=page1_list, page2_list=page2_list)
+
+    #Preparing the data for write to the html table
+    ##Dividing the dictionaries to pages
+    page1_headers = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
+                  'FROM', 'TO', 'TOTAL DURATION OF FLIGHT', 'AIRPLANE SINGLE-ENGINE LAND',
+                  'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND',
+                  'LANDINGS DAY', 'LANDINGS NIGHT']
+
+    page2_headers = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIGHT SIMULATOR',
+                  'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND',
+                  'DUAL RECEIVED', 'AS FLIGHT INSTRUCTOR', 'REMARKS AND ENDORSEMENTS']
+
+    page1_dict = pw_init.page_divide(page1_list, data_dict)
+    page2_dict = pw_init.page_divide(page2_list, data_dict)
+
+    #Using the functions to write out to an html table
+    ##Starting dictionary
+    prev1_totals = {}
+    prev2_totals = {}
     writer.write('<html>')
     writer.write('<head>')
     writer.write('<link rel="stylesheet" href="style.css">')
@@ -145,12 +138,21 @@ with open('Logbook_Print.html', 'w') as writer:
     writer.write('<p>Logbook from insert_date to insert_date</p>')
     writer.write('<div class="pagebreak"> </div>')
     for i in index_list:
-        year = year_compute(i, page1_dict)
-        p1header_row(page1_list, year)
-        prev = page1_write(i, page1_dict, page1_list, prev1_totals)
+        # Set up the data inputs needed
+        start = index_list[i][0]
+        end = index_list[i][1]
+        row_height_list = index_list[i][2]
+        cut_data = data.loc[start:end]
+        cut_dict1 = page1_dict[start:end]
+        cut_dict2 = page2_dict[start:end]
+        year = pw_init.year_compute(cut_dict1)
+
+        # Write the page
+        p1header_row(page1_headers, year)
+        prev = pw_init.page_write(row_height_list, cut_data, page1_dict, page1_headers, prev1_totals, page=1)
         prev1_totals = prev
-        p2header_row(page2_list)
-        prev = page2_write(i, page2_dict, page2_list, prev2_totals)
+        p2header_row(page2_headers)
+        prev = pw_init.page_write(row_height_list, cut_data, page2_dict, page2_headers, prev2_totals, page=2)
         prev2_totals = prev
     writer.write('</body>')
     writer.write('</html>')
