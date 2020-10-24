@@ -28,11 +28,11 @@ Copyright (C) 2017  Kathryn Tanner
 """
 
 #Import our packages
-import numpy as np
 from datetime import datetime
 import pandas as pd
 
 from core.Drive_Data_Fetch import googleSpreadsheetFetch
+from core.Page_Write_Functions import pageWriteFunctions
 
 # Get data from drive
 gDrive_init = googleSpreadsheetFetch(
@@ -71,7 +71,74 @@ na_replace = {
 }
 
 gSheetData = gDrive_init.getGoogleSpreadsheetData(default_values=na_replace)
+
+format_maps = {
+    'TOTAL DURATION OF FLIGHT':'{:,.1f}',
+    'AIRPLANE SINGLE-ENGINE LAND':'{:,.1f}',
+    'AIRPLANE SINGLE-ENGINE SEA':'{:,.1f}',
+    'AIRPLANE MULTI-ENGINE LAND':'{:,.1f}',
+    'LANDINGS DAY':'{:,.0f}',
+    'LANDINGS NIGHT':'{:,.0f}',
+    'NIGHT':'{:,.1f}',
+    'ACTUAL INSTRUMENT':'{:,.1f}',
+    'SIMULATED INSTRUMENT (HOOD)':'{:,.1f}',
+    'FLIGHT SIMULATOR':'{:,.1f}',
+    'CROSS COUNTRY':'{:,.1f}',
+    'SOLO':'{:,.1f}',
+    'PILOT IN COMMAND':'{:,.1f}',
+    'SECOND IN COMMAND':'{:,.1f}',
+    'DUAL RECEIVED':'{:,.1f}',
+    'AS FLIGHT INSTRUCTOR':'{:,.1f}'
+}
+
 data = pd.DataFrame(gSheetData)
+
+
+
+
+for key, value in format_maps.items():
+    data[key] = pd.to_numeric(data[key], downcast="float")
+    # data[key] = data[key].apply(value.format)
+
+# Initialize page write functions
+pw_init = pageWriteFunctions()
+
+page1_list = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
+              'FROM', 'TO', 'TOTAL DURATION OF FLIGHT', 'AIRPLANE SINGLE-ENGINE LAND',
+              'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND',
+              'LANDINGS DAY', 'LANDINGS NIGHT']
+
+page2_list = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIGHT SIMULATOR',
+              'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND',
+              'DUAL RECEIVED', 'AS FLIGHT INSTRUCTOR', 'REMARKS AND ENDORSEMENTS']
+
+index_list = pw_init.page_chunk(gSheetData, page1_list=page1_list, page2_list=page2_list)
+
+def get_combined_totals(prev_totals, current_totals):
+    combined_totals = {}
+
+
+def get_totals(start, end, data, columns, prev_totals):
+    cut_data = data.iloc[start:end]
+
+    column_totals = {}
+    combined_totals = {}
+    for i in columns:
+        if i not in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
+                     'FROM', 'TO', 'APPROACH', 'REMARKS AND ENDORSEMENTS']:
+            if i in ['LANDINGS DAY', 'LANDINGS NIGHT']:
+                column_totals[i] = round(cut_data[i].sum(), 0)
+                combined_totals[i] = int(round(prev_totals.get(i, 0) + column_totals[i], 0))
+            else:
+                column_totals[i] = round(cut_data[i].sum(), 1)
+                combined_totals[i] = round(prev_totals.get(i, 0) + column_totals[i], 1)
+        else:
+            column_totals[i] = ''
+            combined_totals[i] = ''
+
+    return combined_totals
+
+
 
 
 ##Function to write out the table rows and cells past the header row - Page 1
@@ -169,7 +236,7 @@ def page2_write(input_range, input_data, input_headers, prev_totals):
 page1_list = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
               'FROM', 'TO', 'TOTAL DURATION OF FLIGHT', 'AIRPLANE SINGLE-ENGINE LAND',
               'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND',
-              'ROTORCRAFT HELICOPTER', 'GLIDER', 'LANDINGS DAY', 'LANDINGS NIGHT']
+              'LANDINGS DAY', 'LANDINGS NIGHT']
 
 page2_list = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIGHT SIMULATOR',
               'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND',

@@ -3,12 +3,13 @@
 # @Last modified by:   katie
 # @Last modified time: 2020-10-22T19:58:20-05:00
 
+import numpy as np
 
 
 class pageWriteFunctions(object):
     """docstring for pageWriteFunctions."""
 
-    def __init__(self, writer):
+    def __init__(self, writer=None):
         self.writer = writer
 
     ##Function that writes out the year for the header of the table
@@ -29,6 +30,7 @@ class pageWriteFunctions(object):
         return year
 
     ##Defining the header row and the fixed widths of the columns - page even
+
     def p1header_row(values, year):
         self.writer.write('<table class=page1>')
         self.writer.write('<col width="70">')
@@ -103,8 +105,13 @@ class pageWriteFunctions(object):
         return output_dict
 
     ##Function that dynamically defines the pages - page 2
-    def page_chunk(input_dict):
-        length_list = [60, 70, 70, 70, 65, 50, 75, 75, 65, 75, 240]
+    @staticmethod
+    def page_chunk(input_dict, page1_list=None, page2_list=None):
+        total_list = page1_list + page2_list
+        length_list = [
+            70, 75, 115, 115, 105, 95, 95, 95, 95, 40, 40,
+            60, 70, 70, 70, 65, 50, 75, 75, 65, 75, 265
+        ]
         record_rows = 0
         temp_list = list()
         temp_height_list = list()
@@ -115,8 +122,8 @@ class pageWriteFunctions(object):
             index = row_num
             temp_list.append(index)
             col_rows = list()
-            for j, k in zip(page2_list, length_list):
-                length = len(i.get(j, ''))
+            for j, k in zip(total_list, length_list):
+                length = len(str(i.get(j, '')))
                 length_px = length * 7
                 if np.ceil(length_px/k) == 0:
                     rows = 1
@@ -160,3 +167,75 @@ class pageWriteFunctions(object):
             val = (min(i), max(i), j)
             index_list.append(val)
         return index_list
+
+# Getting the sums
+@staticmethod
+def get_totals(data, columns, prev_totals):
+    column_totals = {}
+    combined_totals = {}
+    for i in columns:
+        if i not in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
+                     'FROM', 'TO', 'APPROACH', 'REMARKS AND ENDORSEMENTS']:
+            if i in ['LANDINGS DAY', 'LANDINGS NIGHT']:
+                column_totals[i] = round(data[i].sum(), 0)
+                combined_totals[i] = int(round(prev_totals.get(i, 0) + column_totals[i], 0))
+            else:
+                column_totals[i] = round(data[i].sum(), 1)
+                combined_totals[i] = round(prev_totals.get(i, 0) + column_totals[i], 1)
+        else:
+            column_totals[i] = ''
+            combined_totals[i] = ''
+
+    return {
+        'curr_totals':column_totals,
+        'combined_totals':combined_totals
+        }
+
+# Writing out the page body
+def page_write(self, input_range, df, formatted_dict, input_headers, prev_totals, page):
+    start = input_range[0]
+    end = input_range[1]
+    row_height_list = input_range[2]
+    cut_data = df.iloc[start:end]
+    print_list = formatted_dict[start:end]
+    page_totals = self.get_totals(cut_data, input_headers, prev_totals)
+    curr_totals = page_totals['curr_totals']
+    combined_totals = page_totals['combined_totals']
+    for val, height in zip(print_list, row_height_list):
+        self.writer.write('<tr>')
+        for col in input_headers:
+            cell = '<td style="height:' + str(height) + 'px;">' + val.get(col, ' ') + '</td>'
+            self.writer.write(cell)
+        self.writer.write('</tr>')
+    for m, n in zip(
+        [curr_totals, prev_totals, combined_totals],
+        ['TOTALS THIS PAGE', 'AMT. FORWARDED', 'TOTALS TO DATE']
+    ):
+        if n == 'TOTALS THIS PAGE':
+            self.writer.write('<tr>')
+            self.writer.write('<th class="p1box" colspan="2" rowspan = "4">Totals</th>')
+            self.writer.write('</tr>')
+        self.writer.write('<tr>')
+        if page == 1:
+            self.writer.write('<td class="boldcenter" colspan="3">' + n + ' </td>')
+            for k in input_headers:
+                if k in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT', 'FROM',
+                         'TO']:
+                    continue
+                else:
+                    self.writer.write('<td>' + str(m.get(k, 0)) + '</td>')
+            self.writer.write('</tr>')
+        if page == 2:
+            for l in input_headers:
+                if l == 'REMARKS AND ENDORSEMENTS' and n == 'TOTALS THIS PAGE':
+                    self.writer.write('<th class="p2box" rowspan="4" align="center" style="font-size: 9px;">I certify that the entries in this ' + \
+                                 'log are true<br><br>____________________________________' + \
+                                 '<br>PILOT SIGNATURE</th>')
+                elif l == 'REMARKS AND ENDORSEMENTS' and n != 'TOTALS THIS PAGE':
+                    continue
+                else:
+                    self.writer.write('<td>' + str(m.get(l, 0)) + '</td>')
+            self.writer.write('</tr>')
+    self.writer.write('</table>')
+
+    return combined_totals
