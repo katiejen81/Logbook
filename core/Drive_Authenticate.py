@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2020-10-22T18:57:24-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-22T19:09:31-05:00
+# @Last modified time: 2020-10-24T09:13:53-05:00
 
 
 
@@ -9,52 +9,56 @@
 # Import Needed Packages                                                       #
 ################################################################################
 
-import httplib2
+import pickle
 import os
-
-try:
-    from apiclient import discovery
-except:
-    from googleapiclient import discovery
-
-from oauth2client import client
-from oauth2client import tools
-from oauth2client.file import Storage
+from googleapiclient import discovery
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 
 ################################################################################
 # Authentication Class                                                         #
 ################################################################################
 
 class googleDriveAuthenticate(object):
-    """docstring for googleDriveAuthenticate."""
+    """
+    Author  :   Google, katie
+    Purpose :   To complete the OAuth chain to access the spreadsheet data
+    Inputs  :   scopes (required) - the area of the API we want to access
+            :   client_secret_file (required) - where the client secrets are stored
+            :   authorization_file (required) - where the access token is stored
+    Outputs :   authorized connection to google drive scoped area
+    Notes   :   code obtained and slightly modified from
+            :   https://developers.google.com/sheets/api/quickstart/python
+    """
 
     def __init__(self, scopes = None, client_secret_file = None, application_name = None, authorization_file = None):
         self.scopes = scopes
         self.client_secret_file = client_secret_file
-        self.application_name = application_name
         self.authorization_file = authorization_file
 
         self.credential_path = os.path.join(os.getcwd(),
-                                           authorization_file)
+                                           self.authorization_file)
 
-        self.store = Storage(self.authorization_file)
-        self.credentials = self.store.get()
 
     def googleDriveConnect(self):
-        if not self.credentials or self.credentials.invalid:
-            flow = client.flow_from_clientsecrets(self.client_secret_file, self.scopes)
-            flow.user_agent = self.application_name
-            if flags:
-                credentials = tools.run_flow(flow, self.store, flags)
-                print('Storing credentials to ' + self.credential_path)
+        creds = None
+        if os.path.exists(self.credential_path):
+            with open(self.credential_path, 'rb') as token:
+                creds = pickle.load(token)
 
-        #Authorize credentials
-        http = self.credentials.authorize(httplib2.Http())
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    self.client_secret_file,
+                    scopes
+                )
+                creds = flow.run_local_server(port=0)
+                with open(self.credential_path, 'wb') as token:
+                    pickle.dump(creds, token)
 
-        discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
-                            'version=v4')
-        service = discovery.build('sheets', 'v4', http=http,
-                                      discoveryServiceUrl=discoveryUrl)
+        service = discovery.build('sheets', 'v4', credentials=creds)
 
         # Return the service
         return service
