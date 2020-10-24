@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2020-10-22T19:46:50-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T09:35:59-05:00
+# @Last modified time: 2020-10-24T09:41:18-05:00
 
 import numpy as np
 from datetime import datetime
@@ -49,7 +49,7 @@ class pageWriteFunctions(object):
                      + '</th>')
         self.writer.write('<th colspan = "2">ROUTE OF FLIGHT</th>')
         self.writer.write('<th rowspan = "2">TOTAL DURATION OF FLIGHT</th>')
-        self.writer.write('<th colspan = "5">AIRCRAFT CATEGORY AND CLASS</th>')
+        self.writer.write('<th colspan = "3">AIRCRAFT CATEGORY AND CLASS</th>')
         self.writer.write('<th colspan = "2">LANDINGS</th>')
         self.writer.write('</tr><tr>')
         for i in values:
@@ -210,16 +210,16 @@ class pageWriteFunctions(object):
                 cell = '<td style="height:' + str(height) + 'px;">' + val.get(col, ' ') + '</td>'
                 self.writer.write(cell)
             self.writer.write('</tr>')
-        for m, n in zip(
-            [curr_totals, prev_totals, combined_totals],
-            ['TOTALS THIS PAGE', 'AMT. FORWARDED', 'TOTALS TO DATE']
-        ):
-            if n == 'TOTALS THIS PAGE':
-                self.writer.write('<tr>')
-                self.writer.write('<th class="p1box" colspan="2" rowspan = "4">Totals</th>')
-                self.writer.write('</tr>')
-            self.writer.write('<tr>')
             if page == 1:
+                for m, n in zip(
+                    [curr_totals, prev_totals, combined_totals],
+                    ['TOTALS THIS PAGE', 'AMT. FORWARDED', 'TOTALS TO DATE']
+                ):
+                    if n == 'TOTALS THIS PAGE':
+                        self.writer.write('<tr>')
+                        self.writer.write('<th class="p1box" colspan="2" rowspan = "4">Totals</th>')
+                        self.writer.write('</tr>')
+                    self.writer.write('<tr>')
                 self.writer.write('<td class="boldcenter" colspan="3">' + n + ' </td>')
                 for k in input_headers:
                     if k in ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT', 'FROM',
@@ -228,7 +228,7 @@ class pageWriteFunctions(object):
                     else:
                         self.writer.write('<td>' + str(m.get(k, 0)) + '</td>')
                 self.writer.write('</tr>')
-            if page == 2:
+            elif page == 2:
                 for l in input_headers:
                     if l == 'REMARKS AND ENDORSEMENTS' and n == 'TOTALS THIS PAGE':
                         self.writer.write('<th class="p2box" rowspan="4" align="center" style="font-size: 9px;">I certify that the entries in this ' + \
