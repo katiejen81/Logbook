@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2018-04-15T14:50:44-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T07:43:03-05:00
+# @Last modified time: 2020-10-24T11:51:45-05:00
 
 
 
@@ -25,7 +25,7 @@ pip install ipykernel
 pip install argparse
 pip install numpy
 pip install httplib2
-pip install oauth2client
+pip install google_auth_oauthlib
 pip install pandas
 
 
