@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T16:23:35-05:00
+# @Last modified time: 2020-10-24T16:50:46-05:00
 
 
 
@@ -122,6 +122,9 @@ with open('Logbook_Print.html', 'w') as writer:
     page1_dict = pw_init.page_divide(page1_headers, data_dict)
     page2_dict = pw_init.page_divide(page2_headers, data_dict)
 
+    # Getting the dates for the title page
+    title_dates = pw_init.logbook_dates(data['DATE'])
+
     #Using the functions to write out to an html table
     ##Starting dictionary
     prev1_totals = {}
@@ -132,9 +135,10 @@ with open('Logbook_Print.html', 'w') as writer:
     writer.write('</head>')
     writer.write('<title>Mike Tanner Logbook</title>')
     writer.write('<body>')
-    writer.write('<h1>Placeholder for Cover Page</h1>')
-    writer.write('<p>Michael Tanner</p>')
-    writer.write('<p>Logbook from insert_date to insert_date</p>')
+    writer.write('<h1>Flight Record</h1>')
+    writer.write('<p>for</p>')
+    writer.write('<h2>Michael Tanner</h2>')
+    writer.write('<h3>Logbook from {0} to {1}</h3>'.format(title_dates[0], title_dates[1]))
     writer.write('<div class="pagebreak"> </div>')
     for i in index_list:
         # Set up the data inputs needed
