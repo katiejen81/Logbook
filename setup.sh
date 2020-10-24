@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2018-04-15T14:50:44-05:00
 # @Last modified by:   katie
-# @Last modified time: 2018-04-15T16:48:55-05:00
+# @Last modified time: 2020-10-24T07:43:03-05:00
 
 
 
@@ -19,12 +19,15 @@ sh Miniconda3-latest-Linux-x86_64.sh
 conda create -n logbook python=3.6
 conda activate logbook
 
-pip install --upgrade google-api-python-client
+pip install google-api-python-client
 pip install ipykernel
 
 pip install argparse
 pip install numpy
 pip install httplib2
+pip install oauth2client
+pip install pandas
+
 
 # Delete the download file
 rm Miniconda3-latest-Linux-x86_64.sh
