@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2020-10-22T18:57:24-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T09:13:53-05:00
+# @Last modified time: 2020-10-24T10:41:12-05:00
 
 
 
@@ -31,7 +31,7 @@ class googleDriveAuthenticate(object):
             :   https://developers.google.com/sheets/api/quickstart/python
     """
 
-    def __init__(self, scopes = None, client_secret_file = None, application_name = None, authorization_file = None):
+    def __init__(self, scopes = [], client_secret_file = None, application_name = None, authorization_file = None):
         self.scopes = scopes
         self.client_secret_file = client_secret_file
         self.authorization_file = authorization_file
@@ -52,7 +52,7 @@ class googleDriveAuthenticate(object):
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
                     self.client_secret_file,
-                    scopes
+                    self.scopes
                 )
                 creds = flow.run_local_server(port=0)
                 with open(self.credential_path, 'wb') as token:
