@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T09:36:10-05:00
+# @Last modified time: 2020-10-24T11:12:58-05:00
 
 
 
@@ -138,9 +138,8 @@ with open('Logbook_Print.html', 'w') as writer:
     for i in index_list:
         # Set up the data inputs needed
         start = i['record_start']
-        end = i['record_end']
-        row_height_page1 = i['page1_lengths']
-        row_height_page2 = i['page2_lengths']
+        end = i['record_end']+1
+        row_heights = i['page_lengths']
         cut_data = data.loc[start:end]
         cut_dict1 = page1_dict[start:end]
         cut_dict2 = page2_dict[start:end]
@@ -148,10 +147,10 @@ with open('Logbook_Print.html', 'w') as writer:
 
         # Write the page
         pw_init.p1header_row(page1_headers, year)
-        prev = pw_init.page_write(row_height_page1, cut_data, page1_dict, page1_headers, prev1_totals, page=1)
+        prev = pw_init.page_write(row_heights, cut_data, cut_dict1, page1_headers, prev1_totals, page=1)
         prev1_totals = prev
         pw_init.p2header_row(page2_headers)
-        prev = pw_init.page_write(row_height_page2, cut_data, page2_dict, page2_headers, prev2_totals, page=2)
+        prev = pw_init.page_write(row_heights, cut_data, cut_dict2, page2_headers, prev2_totals, page=2)
         prev2_totals = prev
     writer.write('</body>')
     writer.write('</html>')
