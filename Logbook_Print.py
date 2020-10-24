@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T16:50:46-05:00
+# @Last modified time: 2020-10-24T17:13:06-05:00
 
 
 
@@ -138,6 +138,10 @@ with open('Logbook_Print.html', 'w') as writer:
     writer.write('<h1>Flight Record</h1>')
     writer.write('<p>for</p>')
     writer.write('<h2>Michael Tanner</h2>')
+    writer.write('<h5>Address1</h5>')
+    writer.write('<h5>Address2</h5>')
+    writer.write('<p><b>Phone:<b>Phone1</p>')
+    writer.write('<p><a href="mailto:email@gmail.com">email@gmail.com</a></p>')
     writer.write('<h3>Logbook from {0} to {1}</h3>'.format(title_dates[0], title_dates[1]))
     writer.write('<div class="pagebreak"> </div>')
     for i in index_list:
