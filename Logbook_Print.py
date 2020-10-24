@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T08:11:43-05:00
+# @Last modified time: 2020-10-24T09:19:18-05:00
 
 
 
@@ -38,8 +38,7 @@ from core.Page_Write_Functions import pageWriteFunctions
 gDrive_init = googleSpreadsheetFetch(
     scopes = 'https://www.googleapis.com/auth/spreadsheets.readonly',
     client_secret_file = 'client_secret.json',
-    application_name = 'Logbook API Print',
-    authorization_file = 'authorization.json',
+    authorization_file = 'token.pickle',
     spreadsheetId = '15FeoThcHzYceUEoIR6uegF4HFH-jJKzW6paitZ9dipM',
     rangeName = 'XJT_Logbook_CLEAN!B:AE',
     dictConvert = True
