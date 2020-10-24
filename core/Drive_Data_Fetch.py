@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2020-10-22T19:20:45-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-22T21:30:28-05:00
+# @Last modified time: 2020-10-24T09:18:02-05:00
 
 
 
@@ -22,7 +22,6 @@ class googleSpreadsheetFetch(googleDriveAuthenticate):
         super(googleSpreadsheetFetch, self).__init__(
             scopes = scopes,
             client_secret_file = client_secret_file,
-            application_name = application_name,
             authorization_file = authorization_file
         )
         self.spreadsheetId = spreadsheetId
