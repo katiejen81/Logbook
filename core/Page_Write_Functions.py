@@ -1,9 +1,10 @@
 # @Author: katie
 # @Date:   2020-10-22T19:46:50-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-22T19:58:20-05:00
+# @Last modified time: 2020-10-24T08:05:04-05:00
 
 import numpy as np
+from datetime import datetime
 
 
 class pageWriteFunctions(object):
@@ -13,13 +14,11 @@ class pageWriteFunctions(object):
         self.writer = writer
 
     ##Function that writes out the year for the header of the table
-    def year_compute(input_range, input_dict):
-        start = input_range[0]
-        end = input_range[1]
-        table = input_dict[start:end]
+    @staticmethod
+    def year_compute(input_dict):
         temp_list = list()
-        for j in table:
-            date = datetime.strptime(j['DATE'], '%M/%d/%Y').date().strftime('%Y')
+        for record in input_dict:
+            date = datetime.strptime(record['DATE'], '%M/%d/%Y').date().strftime('%Y')
             if date in temp_list:
                 continue
             temp_list.append(date)
@@ -92,6 +91,7 @@ class pageWriteFunctions(object):
         self.writer.write('</tr>')
 
     ##Function that develops the page1 and page2 dictionaries
+    @staticmethod
     def page_divide(header_list, input_dict):
         output_dict = list()
         for i in input_dict:
@@ -192,16 +192,11 @@ class pageWriteFunctions(object):
             }
 
     # Writing out the page body
-    def page_write(self, input_range, df, formatted_dict, input_headers, prev_totals, page):
-        start = input_range[0]
-        end = input_range[1]
-        row_height_list = input_range[2]
-        cut_data = df.iloc[start:end]
-        print_list = formatted_dict[start:end]
-        page_totals = self.get_totals(cut_data, input_headers, prev_totals)
+    def page_write(self, row_height_list, cut_df, formatted_dict, input_headers, prev_totals, page):
+        page_totals = self.get_totals(cut_df, input_headers, prev_totals)
         curr_totals = page_totals['curr_totals']
         combined_totals = page_totals['combined_totals']
-        for val, height in zip(print_list, row_height_list):
+        for val, height in zip(formatted_dict, row_height_list):
             self.writer.write('<tr>')
             for col in input_headers:
                 cell = '<td style="height:' + str(height) + 'px;">' + val.get(col, ' ') + '</td>'
