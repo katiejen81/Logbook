@@ -2,3 +2,4 @@ client_secret.json
 authorization.json
 sheets.googleapis.com-Logbook.json.json
 *.html
+core/__pycache__
