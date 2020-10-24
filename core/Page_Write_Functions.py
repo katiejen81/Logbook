@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2020-10-22T19:46:50-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T08:05:04-05:00
+# @Last modified time: 2020-10-24T08:22:32-05:00
 
 import numpy as np
 from datetime import datetime
@@ -104,10 +104,13 @@ class pageWriteFunctions(object):
             output_dict.append(dict1)
         return output_dict
 
-    ##Function that dynamically defines the pages - page 2
+    ##Function that dynamically defines the pages
     @staticmethod
     def page_chunk(input_dict, page1_list=None, page2_list=None):
         total_list = page1_list + page2_list
+        page1_index = (0, len(page1_list))
+        page2_index = (len(page1_list)+1, len(total_list))
+
         length_list = [
             70, 75, 115, 115, 105, 95, 95, 95, 95, 40, 40,
             60, 70, 70, 70, 65, 50, 75, 75, 65, 75, 265
@@ -164,7 +167,12 @@ class pageWriteFunctions(object):
         height_list.append(last)
         index_list = list()
         for i, j in zip(value_list, height_list):
-            val = (min(i), max(i), j)
+            val = {
+                "record_start":min(i),
+                "record_end":max(i),
+                "page1_lengths":j[page1_index[0]:page1_index[1]],
+                "page2_lengths":j[page2_index[0]:page2_index[1]]
+            }
             index_list.append(val)
         return index_list
 
