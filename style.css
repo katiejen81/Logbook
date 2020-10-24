@@ -1,3 +1,12 @@
+/**
+ * @Author: katie
+ * @Date:   2017-07-09T19:23:09-05:00
+ * @Last modified by:   katie
+ * @Last modified time: 2020-10-24T16:58:19-05:00
+ */
+
+
+
 table {
   border: 2px solid black;
   border-collapse: collapse;
@@ -45,7 +54,7 @@ th.secondrow {
   page-break-after: always;
 }
 
-h1, p {
+h1, h2, h3, h4, h5, p {
   text-align: center;
   font-family: "Ubuntu Mono", sans-serif;
   margin-bottom: .5in;
