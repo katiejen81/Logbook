@@ -6,6 +6,7 @@
 
 
 from core.Drive_Authenticate import googleDriveAuthenticate
+import os
 
 class googleSpreadsheetFetch(googleDriveAuthenticate):
     """docstring for googleSpreadsheetFetch."""
@@ -66,3 +67,27 @@ class googleSpreadsheetFetch(googleDriveAuthenticate):
                         i[repl_val[0]] = i[repl_val[0]]
 
             return value_dict_master
+
+    # Checking for Name and Address information
+    @staticmethod
+    def getName_Address(file_path):
+        if os.path.exists(file_path):
+            print('Address File Exists!')
+        else:
+            name = input("Please enter your name: ")
+            address = input("Please enter your house no and street: ")
+            city_state = input("Please enter your city, state and zip: ")
+            phone = input("Please enter your phone with area code: ")
+            email = input("Please enter your email address: ")
+
+            address_dict = {
+                "name":name,
+                "address":address,
+                "city_state":city_state,
+                "phone":phone,
+                "email":email
+            }
+
+            with open(file_path, 'w') as awriter:
+                awriter.write(str(address_dict))
+        awriter.close()

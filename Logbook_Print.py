@@ -105,6 +105,9 @@ for key, value in format_maps.items():
 
 data_dict = data_formatted.to_dict(orient='records')
 
+# Look for address information...Populate if needed
+gDrive_init.getName_Address('Address.py')
+
 ##Writing the html file
 with open('Logbook_Print.html', 'w') as writer:
     # Initialize page write functions
