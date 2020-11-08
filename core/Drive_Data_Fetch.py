@@ -17,7 +17,7 @@ class googleSpreadsheetFetch(googleDriveAuthenticate):
                 spreadsheetId = None,
                 rangeName = None,
                 colNoStart = 0,
-                colNoEnd = 21,
+                colNoEnd = 24,
                 dictConvert = True):
         super(googleSpreadsheetFetch, self).__init__(
             scopes = scopes,

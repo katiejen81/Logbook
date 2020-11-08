@@ -42,14 +42,16 @@ class pageWriteFunctions(object):
     def p1header_row(self, values, year):
         self.writer.write('<table class=page1>')
         self.writer.write('<col width="70">')
+        self.writer.write('<col width="70">')
+        self.writer.write('<col width="80">')
+        self.writer.write('<col width="95">')
+        self.writer.write('<col width="95">')
+        self.writer.write('<col class="gray" width="75">')
         self.writer.write('<col width="75">')
-        self.writer.write('<col width="115">')
-        self.writer.write('<col width="115">')
-        self.writer.write('<col width="105">')
-        self.writer.write('<col class="gray" width="95">')
-        self.writer.write('<col width="95">')
-        self.writer.write('<col class= "gray" width="95">')
-        self.writer.write('<col width="95">')
+        self.writer.write('<col class= "gray" width="75">')
+        self.writer.write('<col width="75">')
+        self.writer.write('<col class= "gray" width="75">')
+        self.writer.write('<col width="75">')
         self.writer.write('<col class="gray" width="40">')
         self.writer.write('<col width="40">')
         self.writer.write('<tr>')
@@ -58,7 +60,7 @@ class pageWriteFunctions(object):
                      + '</th>')
         self.writer.write('<th colspan = "2">ROUTE OF FLIGHT</th>')
         self.writer.write('<th rowspan = "2">TOTAL DURATION OF FLIGHT</th>')
-        self.writer.write('<th colspan = "3">AIRCRAFT CATEGORY AND CLASS</th>')
+        self.writer.write('<th colspan = "5">AIRCRAFT CATEGORY AND CLASS</th>')
         self.writer.write('<th colspan = "2">LANDINGS</th>')
         self.writer.write('</tr><tr>')
         for i in values:
@@ -121,7 +123,7 @@ class pageWriteFunctions(object):
         page2_index = (len(page1_list)+1, len(total_list))
 
         length_list = [
-            70, 75, 115, 115, 105, 95, 95, 95, 95, 40, 40,
+            70, 70, 80, 95, 95, 95, 75, 75, 75, 75, 75, 75, 40, 40,
             60, 70, 70, 70, 65, 50, 75, 75, 65, 75, 265
         ]
         record_rows = 0

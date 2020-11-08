@@ -40,7 +40,7 @@ gDrive_init = googleSpreadsheetFetch(
     client_secret_file = 'client_secret.json',
     authorization_file = 'token.pickle',
     spreadsheetId = '15FeoThcHzYceUEoIR6uegF4HFH-jJKzW6paitZ9dipM',
-    rangeName = 'XJT_Logbook_CLEAN!B:AE',
+    rangeName = 'XJT_Logbook_CLEAN!B:AK',
     dictConvert = True
 )
 
@@ -55,6 +55,8 @@ na_replace = {
     'AIRPLANE SINGLE-ENGINE LAND':0.0,
     'AIRPLANE SINGLE-ENGINE SEA':0.0,
     'AIRPLANE MULTI-ENGINE LAND':0.0,
+    'TURBINE SIC': 0.0,
+    'TURBINE PIC': 0.0,
     'LANDINGS DAY':0,
     'LANDINGS NIGHT':0,
     'NIGHT':0.0,
@@ -77,6 +79,8 @@ format_maps = {
     'AIRPLANE SINGLE-ENGINE LAND':'{:,.1f}',
     'AIRPLANE SINGLE-ENGINE SEA':'{:,.1f}',
     'AIRPLANE MULTI-ENGINE LAND':'{:,.1f}',
+    'TURBINE SIC':'{:,.1f}',
+    'TURBINE PIC':'{:,.1f}',
     'LANDINGS DAY':'{:,.0f}',
     'LANDINGS NIGHT':'{:,.0f}',
     'NIGHT':'{:,.1f}',
@@ -92,6 +96,7 @@ format_maps = {
 }
 
 data = pd.DataFrame(gSheetData)
+
 data_formatted = pd.DataFrame(gSheetData)
 for key, value in format_maps.items():
     data[key] = pd.to_numeric(data[key], downcast="float")
@@ -110,7 +115,7 @@ with open('Logbook_Print.html', 'w') as writer:
     page1_headers = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
                   'FROM', 'TO', 'TOTAL DURATION OF FLIGHT', 'AIRPLANE SINGLE-ENGINE LAND',
                   'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND',
-                  'LANDINGS DAY', 'LANDINGS NIGHT']
+                  'TURBINE SIC', 'TURBINE PIC', 'LANDINGS DAY', 'LANDINGS NIGHT']
 
     page2_headers = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIGHT SIMULATOR',
                   'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND',
