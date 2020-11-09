@@ -3,3 +3,5 @@ authorization.json
 sheets.googleapis.com-Logbook.json.json
 *.html
 core/__pycache__
+*.pickle
+*.json
