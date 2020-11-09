@@ -1,12 +1,14 @@
 # @Author: katie
 # @Date:   2020-10-22T19:20:45-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T09:18:02-05:00
+# @Last modified time: 2020-11-08T20:48:21-06:00
 
 
 
 from core.Drive_Authenticate import googleDriveAuthenticate
 import os
+import json
+import pandas as pd
 
 class googleSpreadsheetFetch(googleDriveAuthenticate):
     """docstring for googleSpreadsheetFetch."""
@@ -88,6 +90,7 @@ class googleSpreadsheetFetch(googleDriveAuthenticate):
                 "email":email
             }
 
-            with open(file_path, 'w') as awriter:
-                awriter.write(str(address_dict))
-        awriter.close()
+            awriter = open(file_path, 'w')
+            address_data = json.dumps(address_dict)
+            awriter.write(address_data)
+            awriter.close()
