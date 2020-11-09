@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T17:13:06-05:00
+# @Last modified time: 2020-11-08T21:46:08-06:00
 
 
 
@@ -30,6 +30,7 @@ Copyright (C) 2017  Kathryn Tanner
 #Import our packages
 
 import pandas as pd
+import json
 
 from core.Drive_Data_Fetch import googleSpreadsheetFetch
 from core.Page_Write_Functions import pageWriteFunctions
@@ -106,7 +107,11 @@ for key, value in format_maps.items():
 data_dict = data_formatted.to_dict(orient='records')
 
 # Look for address information...Populate if needed
-gDrive_init.getName_Address('Address.py')
+gDrive_init.getName_Address('Address.json')
+
+# Get the address information
+address_file = open('Address.json', 'r')
+address_info = json.load(address_file)
 
 ##Writing the html file
 with open('Logbook_Print.html', 'w') as writer:
@@ -137,21 +142,6 @@ with open('Logbook_Print.html', 'w') as writer:
     ##Starting dictionary
     prev1_totals = {}
     prev2_totals = {}
-    writer.write('<html>')
-    writer.write('<head>')
-    writer.write('<link rel="stylesheet" href="style.css">')
-    writer.write('</head>')
-    writer.write('<title>Mike Tanner Logbook</title>')
-    writer.write('<body>')
-    writer.write('<h1>Flight Record</h1>')
-    writer.write('<p>for</p>')
-    writer.write('<h2>Michael Tanner</h2>')
-    writer.write('<h5>Address1</h5>')
-    writer.write('<h5>Address2</h5>')
-    writer.write('<p><b>Phone:<b>Phone1</p>')
-    writer.write('<p><a href="mailto:email@gmail.com">email@gmail.com</a></p>')
-    writer.write('<h3>Logbook from {0} to {1}</h3>'.format(title_dates[0], title_dates[1]))
-    writer.write('<div class="pagebreak"> </div>')
     for i in index_list:
         # Set up the data inputs needed
         start = i['record_start']
@@ -171,4 +161,76 @@ with open('Logbook_Print.html', 'w') as writer:
         prev2_totals = prev
     writer.write('</body>')
     writer.write('</html>')
+writer.close()
+
+# Prepend the file with the title page information
+# Get the total flight time
+totals = prev1_totals
+totals.update(prev2_totals)
+totals['TOTAL TURBINE'] = totals['TURBINE PIC'] + totals['TURBINE SIC']
+
+with open('Logbook_Print.html', 'r+') as writer:
+    content = writer.read()
+    writer.seek(0,0)
+    writer.write(
+        f"""
+        <html>
+        <head>
+        <link rel="stylesheet" href="style.css">
+        <head>
+        <title>{address_info['name']} Logbook</title>
+        <body>
+        <br>
+        <br>
+        <h1>Flight Record</h1>
+        <p>for</p>
+        <h2>{address_info['name']}</h2>
+        <h5>{address_info['address']}</h5>
+        <h5>{address_info['city_state']}</h5>
+        <p><b>Phone:<b>{address_info['phone']}</p>
+        <p><a href="mailto:email@gmail.com">{address_info['email']}</a></p>
+        """
+    )
+    writer.write('<h3>Logbook from {0} to {1}</h3>'.format(title_dates[0], title_dates[1]))
+    writer.write('<h3>Summary of Total Time</h3>')
+    writer.write(f"""
+        <table class=titlepage>
+            <col width="150">
+            <col width="50">
+            <col width="150">
+            <col width="50">
+            <tr>
+                <td><b>Total Flight Time</b></td>
+                <td>{totals['TOTAL DURATION OF FLIGHT']:.1f}</td>
+                <td><b>Simulated Instrument</b></td>
+                <td>{totals['SIMULATED INSTRUMENT (HOOD)']:.1f}</td>
+            </tr>
+            <tr>
+                <td><b>Pilot in Command</b></td>
+                <td>{totals['PILOT IN COMMAND']:.1f}</td>
+                <td><b>Actual Instrument</b></td>
+                <td>{totals['ACTUAL INSTRUMENT']:.1f}</td>
+            </tr>
+            <tr>
+                <td><b>Second in Command</b></td>
+                <td>{totals['SECOND IN COMMAND']:.1f}</td>
+                <td><b>Night</b></td>
+                <td>{totals['NIGHT']:.1f}</td>
+            </tr>
+            <tr>
+                <td><b>Total Turbine</b></td>
+                <td>{round(totals['TOTAL TURBINE'],1):.1f}</td>
+                <td><b>Cross Country</b></td>
+                <td>{totals['CROSS COUNTRY']:.1f}</td>
+            </tr>
+            <tr>
+                <td><b>Multi-Engine</b></td>
+                <td>{totals['AIRPLANE MULTI-ENGINE LAND']:.1f}</td>
+                <td><b>Dual Given</b></td>
+                <td>{totals['DUAL RECEIVED']:.1f}</td>
+            </tr>
+        </table>
+    <div class="pagebreak"> </div>
+    """)
+    writer.write(content)
 writer.close()
