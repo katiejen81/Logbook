@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2017-07-09T19:41:52-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-11-08T21:46:08-06:00
+# @Last modified time: 2020-11-10T20:37:46-06:00
 
 
 
@@ -56,6 +56,7 @@ na_replace = {
     'AIRPLANE SINGLE-ENGINE LAND':0.0,
     'AIRPLANE SINGLE-ENGINE SEA':0.0,
     'AIRPLANE MULTI-ENGINE LAND':0.0,
+    'COMPLEX': 0.0,
     'TURBINE SIC': 0.0,
     'TURBINE PIC': 0.0,
     'LANDINGS DAY':0,
@@ -80,6 +81,7 @@ format_maps = {
     'AIRPLANE SINGLE-ENGINE LAND':'{:,.1f}',
     'AIRPLANE SINGLE-ENGINE SEA':'{:,.1f}',
     'AIRPLANE MULTI-ENGINE LAND':'{:,.1f}',
+    'COMPLEX':'{:,.1f}',
     'TURBINE SIC':'{:,.1f}',
     'TURBINE PIC':'{:,.1f}',
     'LANDINGS DAY':'{:,.0f}',
@@ -122,14 +124,14 @@ with open('Logbook_Print.html', 'w') as writer:
     ##Dividing the dictionaries to pages
     page1_headers = ['DATE', 'AIRCRAFT MAKE AND MODEL', 'AIRCRAFT IDENT',
                   'FROM', 'TO', 'TOTAL DURATION OF FLIGHT', 'AIRPLANE SINGLE-ENGINE LAND',
-                  'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND',
+                  'AIRPLANE SINGLE-ENGINE SEA', 'AIRPLANE MULTI-ENGINE LAND', 'COMPLEX',
                   'TURBINE SIC', 'TURBINE PIC', 'LANDINGS DAY', 'LANDINGS NIGHT']
 
     page2_headers = ['NIGHT', 'ACTUAL INSTRUMENT', 'SIMULATED INSTRUMENT (HOOD)', 'FLIGHT SIMULATOR',
                   'CROSS COUNTRY', 'SOLO', 'PILOT IN COMMAND', 'SECOND IN COMMAND',
                   'DUAL RECEIVED', 'AS FLIGHT INSTRUCTOR', 'REMARKS AND ENDORSEMENTS']
 
-    index_list = pw_init.page_chunk(data_dict, page1_list=page1_headers, page2_list=page2_headers)
+    index_list = pw_init.page_chunk(data_dict, page1_list=page1_headers, page2_list=page2_headers, char_pxl_width=7)
 
     #Preparing the data for write to the html table
     page1_dict = pw_init.page_divide(page1_headers, data_dict)
@@ -230,6 +232,10 @@ with open('Logbook_Print.html', 'r+') as writer:
                 <td>{totals['DUAL RECEIVED']:.1f}</td>
             </tr>
         </table>
+    <div class="pagebreak"> </div>
+    <h1>Notes</h1>
+    <div class="pagebreak"> </div>
+    <h1>Notes</h1>
     <div class="pagebreak"> </div>
     """)
     writer.write(content)
