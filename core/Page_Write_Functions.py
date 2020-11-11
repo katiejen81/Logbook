@@ -1,7 +1,7 @@
 # @Author: katie
 # @Date:   2020-10-22T19:46:50-05:00
 # @Last modified by:   katie
-# @Last modified time: 2020-10-24T16:46:34-05:00
+# @Last modified time: 2020-11-10T20:10:03-06:00
 
 import numpy as np
 from datetime import datetime
@@ -50,9 +50,10 @@ class pageWriteFunctions(object):
         self.writer.write('<col width="75">')
         self.writer.write('<col class= "gray" width="75">')
         self.writer.write('<col width="75">')
-        self.writer.write('<col class= "gray" width="75">')
-        self.writer.write('<col width="75">')
-        self.writer.write('<col class="gray" width="40">')
+        self.writer.write('<col class= "gray" width="65">')
+        self.writer.write('<col width="65">')
+        self.writer.write('<col class="gray" width="65">')
+        self.writer.write('<col width="40">')
         self.writer.write('<col width="40">')
         self.writer.write('<tr>')
         self.writer.write('<th colspan = "3">YEAR ' \
@@ -60,7 +61,7 @@ class pageWriteFunctions(object):
                      + '</th>')
         self.writer.write('<th colspan = "2">ROUTE OF FLIGHT</th>')
         self.writer.write('<th rowspan = "2">TOTAL DURATION OF FLIGHT</th>')
-        self.writer.write('<th colspan = "5">AIRCRAFT CATEGORY AND CLASS</th>')
+        self.writer.write('<th colspan = "6">AIRCRAFT CATEGORY AND CLASS</th>')
         self.writer.write('<th colspan = "2">LANDINGS</th>')
         self.writer.write('</tr><tr>')
         for i in values:
@@ -117,13 +118,11 @@ class pageWriteFunctions(object):
 
     ##Function that dynamically defines the pages
     @staticmethod
-    def page_chunk(input_dict, page1_list=None, page2_list=None):
+    def page_chunk(input_dict, page1_list=None, page2_list=None, char_pxl_width=7, row_pxl_width=17):
         total_list = page1_list + page2_list
-        page1_index = (0, len(page1_list))
-        page2_index = (len(page1_list)+1, len(total_list))
 
         length_list = [
-            70, 70, 80, 95, 95, 95, 75, 75, 75, 75, 75, 75, 40, 40,
+            70, 70, 80, 95, 95, 75, 75, 75, 75, 65, 65, 65, 40, 40,
             60, 70, 70, 70, 65, 50, 75, 75, 65, 75, 265
         ]
         record_rows = 0
@@ -138,14 +137,14 @@ class pageWriteFunctions(object):
             col_rows = list()
             for j, k in zip(total_list, length_list):
                 length = len(str(i.get(j, '')))
-                length_px = length * 7
+                length_px = length * char_pxl_width
                 if np.ceil(length_px/k) == 0:
                     rows = 1
                 else:
                     rows = int(np.ceil(length_px/k))
                 col_rows.append(rows)
             record_rows = record_rows + max(col_rows)
-            temp_height_list.append(max(col_rows) * 17)
+            temp_height_list.append(max(col_rows) * row_pxl_width)
             row_num = row_num + 1
             if record_rows > 37:
                 start = temp_list[len(temp_list) - 1]
@@ -155,7 +154,7 @@ class pageWriteFunctions(object):
                 height_list.append(temp_height_list)
                 temp_list = [start]
                 record_rows = max(col_rows)
-                temp_height_list = [record_rows * 17]
+                temp_height_list = [record_rows * row_pxl_width]
             else:
                 continue
         value_list.append(temp_list)
